@@ -1,0 +1,234 @@
+# Vibecoding Workflow Configuration
+# Customize this file for your project
+
+# =============================================================================
+# FIRST DECISION: PROTOTYPE OR PRODUCTION?
+# =============================================================================
+# This is the MOST IMPORTANT setting - it determines everything else.
+#
+# ┌─────────────────────────────────────────────────────────────────────────────┐
+# │ PROTOTYPE MODE                      │ PRODUCTION MODE                       │
+# ├─────────────────────────────────────┼───────────────────────────────────────┤
+# │ Frontend-only focus                 │ Full-stack development                │
+# │ Faster iteration                    │ Maximum rigor                         │
+# │ 5 essential quality gates           │ All 10 quality gates                  │
+# │ Lighter specs (still Given/When/Then)│ Full detailed specs                  │
+# │ Visual feedback prioritized         │ Complete test coverage                │
+# │ Mock data / local storage           │ Real backend integration              │
+# │ Good for: MVPs, demos, validation   │ Good for: Production, client work    │
+# └─────────────────────────────────────┴───────────────────────────────────────┘
+
+approach: "prototype"                       # prototype | production
+
+# =============================================================================
+# PROJECT SETTINGS
+# =============================================================================
+project:
+  name: "[PROJECT_NAME]"                    # Your project name
+  description: "[PROJECT_DESCRIPTION]"      # Brief description
+  type: "web"                               # web | mobile | backend | fullstack | cli
+
+# =============================================================================
+# TECHNOLOGY STACK
+# =============================================================================
+tech_stack:
+  # Frontend (the focus for PROTOTYPE mode)
+  frontend:
+    framework: "react"                      # react | vue | svelte | angular | vanilla | null
+    language: "typescript"                  # typescript | javascript
+    styling: "tailwind"                     # tailwind | css | scss | styled-components
+    ui_library: "shadcn-ui"                 # shadcn-ui | material-ui | chakra | null
+
+  # Backend (typically null for PROTOTYPE, set for PRODUCTION)
+  backend:
+    framework: null                         # node | python | go | rust | null
+    database: null                          # postgres | mongodb | supabase | firebase | null
+
+  # Testing
+  testing:
+    unit: "vitest"                          # vitest | jest | pytest | go-test
+    e2e: null                               # playwright | cypress | null
+    coverage_threshold: 80                  # Minimum coverage percentage
+
+  # Code quality
+  quality:
+    linter: "eslint"                        # eslint | biome | ruff | null
+    formatter: "prettier"                   # prettier | biome | black | null
+
+# =============================================================================
+# WORKFLOW PHASES
+# =============================================================================
+workflow:
+  phases:
+    - spec_design           # Phase 1: Write specification
+    - test_planning         # Phase 2: Plan tests based on spec
+    - implementation        # Phase 3: Implement with TDD
+    - team_review           # Phase 4: Quality gate review
+    - user_testing          # Phase 5: User approval (Stop & Wait)
+
+  # Spec-driven development settings
+  spec_driven:
+    enabled: true
+    require_approval: true                  # Spec must be approved before coding
+    acceptance_format: "given_when_then"    # given_when_then | checklist | free_form
+    traceability_required: true             # Require spec-to-test traceability matrix
+
+  # TDD settings
+  tdd:
+    enabled: true
+    require_failing_test_first: true        # Red-Green-Blue cycle enforced
+
+  # Stop & Wait protocol
+  stop_and_wait:
+    enabled: true
+    require_explicit_approval: true         # Never proceed without user saying "approved"
+
+# =============================================================================
+# QUALITY GATES
+# =============================================================================
+# PROTOTYPE MODE uses 5 essential gates (marked with *)
+# PRODUCTION MODE uses all 10 gates
+#
+# ┌─────────────────────────────────────────────────────────────────────────────┐
+# │ Gate                │ Prototype │ Production │ Description                  │
+# ├─────────────────────┼───────────┼────────────┼──────────────────────────────┤
+# │ * Code Quality      │ YES       │ YES        │ Linting, no warnings         │
+# │ * Functionality     │ YES       │ YES        │ Acceptance criteria met      │
+# │ * Mobile Responsive │ YES       │ YES        │ Works at all breakpoints     │
+# │ * UX Consistency    │ YES       │ YES        │ Looks good, consistent       │
+# │ * Documentation     │ YES       │ YES        │ Specs updated                │
+# │   Performance       │ NO        │ YES        │ Lighthouse > 90              │
+# │   Accessibility     │ NO        │ YES        │ WCAG 2.1 AA                  │
+# │   Browser Testing   │ NO        │ YES        │ Chrome, Safari, Firefox      │
+# │   Integration       │ NO        │ YES        │ APIs, error handling         │
+# │   Security          │ NO        │ YES        │ XSS, injection checks        │
+# └─────────────────────┴───────────┴────────────┴──────────────────────────────┘
+
+quality_gates:
+  # ESSENTIAL GATES (Both Prototype & Production)
+  code_quality:
+    enabled: true
+    prototype: true
+    description: "Linting passes, no warnings, proper error handling"
+
+  functionality:
+    enabled: true
+    prototype: true
+    description: "All acceptance criteria met, happy paths work"
+
+  mobile_responsive:
+    enabled: true
+    prototype: true
+    description: "Works at all breakpoints"
+
+  ux_consistency:
+    enabled: true
+    prototype: true
+    description: "Matches design system, proper spacing"
+
+  documentation:
+    enabled: true
+    prototype: true
+    description: "Code commented where needed, specs updated"
+
+  # PRODUCTION-ONLY GATES (skip in Prototype mode)
+  performance:
+    enabled: true
+    prototype: false                        # Skip in prototype mode
+    description: "Meets performance targets"
+    lighthouse_score: 90
+    fcp_seconds: 1.5
+    tti_seconds: 3.0
+
+  accessibility:
+    enabled: true
+    prototype: false                        # Skip in prototype mode
+    description: "WCAG 2.1 AA compliant, keyboard navigation"
+
+  browser_testing:
+    enabled: true
+    prototype: false                        # Skip in prototype mode
+    description: "Chrome, Safari, Firefox tested"
+
+  integration:
+    enabled: true
+    prototype: false                        # Skip in prototype mode
+    description: "APIs working, error handling, data flow correct"
+
+  security:
+    enabled: true
+    prototype: false                        # Skip in prototype mode
+    description: "No XSS, no injection, env vars for secrets"
+
+# =============================================================================
+# MOBILE-FIRST SETTINGS (Web projects)
+# =============================================================================
+mobile_first:
+  enabled: true
+  breakpoints:
+    xs: "320px"     # iPhone SE
+    sm: "375px"     # iPhone standard
+    md: "768px"     # Tablet
+    lg: "1024px"    # Desktop
+    xl: "1440px"    # Large desktop
+
+  requirements:
+    min_touch_target: "44px"
+    min_font_size: "16px"
+    no_hover_only: true
+
+# =============================================================================
+# GIT WORKFLOW
+# =============================================================================
+git:
+  auto_commit: false                        # Never auto-commit
+  auto_push: false                          # Never auto-push
+  commit_format: "conventional"             # conventional | phase_based | simple
+
+  # Conventional commit types
+  commit_types:
+    - feat      # New feature
+    - fix       # Bug fix
+    - docs      # Documentation
+    - spec      # Specification
+    - test      # Tests
+    - refactor  # Refactoring
+    - chore     # Maintenance
+
+# =============================================================================
+# DOCUMENTATION
+# =============================================================================
+documentation:
+  auto_generate_on_approval: true           # Generate feature docs after user approval
+
+  outputs:
+    technical: true                         # API reference, props, data flows
+    user_facing: true                       # How-to guides, feature descriptions
+
+  locations:
+    specs: "docs/specs"
+    reviews: "docs/reviews"
+    features: "docs/features"
+    bugs: "docs/bugs"
+
+# =============================================================================
+# BUG HANDLING
+# =============================================================================
+bugs:
+  require_postmortem: true                  # Every bug gets a post-mortem
+  require_root_cause_analysis: true         # 5 Whys analysis required
+  require_regression_test: true             # Must add test before fixing
+
+  severity_levels:
+    critical:
+      description: "Data loss, security breach, complete failure"
+      response: "immediate"
+    high:
+      description: "Major feature broken, no workaround"
+      response: "same_day"
+    medium:
+      description: "Feature degraded, workaround exists"
+      response: "next_sprint"
+    low:
+      description: "Minor issue, cosmetic"
+      response: "backlog"
