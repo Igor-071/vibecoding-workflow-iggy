@@ -1,0 +1,419 @@
+# Vibecoding Workflow 2.0 - Auto-Detection Rules
+# Claude uses these rules to automatically classify change complexity
+
+version: "2.0"
+
+# =============================================================================
+# DETECTION ALGORITHM OVERVIEW
+# =============================================================================
+#
+# 1. Parse user request for keywords and patterns
+# 2. Calculate score for each tier based on indicators
+# 3. Apply command modifiers (if any)
+# 4. Select highest-scoring tier (or command default)
+# 5. Present detection to user with reasoning
+# 6. Allow user override
+#
+# =============================================================================
+
+# =============================================================================
+# MINIMAL TIER INDICATORS
+# =============================================================================
+minimal_indicators:
+
+  # Keywords that suggest minimal change
+  keywords:
+    high_confidence:  # +3 points each
+      - typo
+      - typos
+      - spelling
+      - misspelling
+      - misspelled
+      - "wrong word"
+      - grammar
+      - punctuation
+
+    medium_confidence:  # +2 points each
+      - text
+      - copy
+      - label
+      - wording
+      - message
+      - string
+      - title
+      - heading
+      - placeholder
+      - tooltip text
+
+    low_confidence:  # +1 point each
+      - color
+      - colour
+      - padding
+      - margin
+      - spacing
+      - font
+      - "font size"
+      - "font weight"
+      - border
+      - shadow
+      - opacity
+      - radius
+
+  # Patterns that suggest minimal change
+  patterns:
+    high_confidence:  # +3 points each
+      - "change .* to .*"           # "change X to Y"
+      - "rename .* to .*"           # "rename X to Y"
+      - "update .* text"            # "update button text"
+      - "fix typo"
+      - "should be .* not .*"       # "should be X not Y"
+      - "says .* should say .*"     # "says X should say Y"
+
+    medium_confidence:  # +2 points each
+      - "change the (?:color|colour)"
+      - "make .* (?:bigger|smaller)"
+      - "adjust (?:padding|margin|spacing)"
+
+  # Scope indicators
+  scope:
+    single_file: +2
+    single_line: +3
+    estimated_lines_under_10: +2
+
+  # Threshold: need 5+ points for MINIMAL
+  threshold: 5
+
+# =============================================================================
+# LIGHT TIER INDICATORS
+# =============================================================================
+light_indicators:
+
+  keywords:
+    high_confidence:  # +3 points each
+      - fix
+      - bug
+      - broken
+      - "not working"
+      - "doesn't work"
+      - "won't work"
+      - error
+      - issue
+      - problem
+
+    medium_confidence:  # +2 points each
+      - add
+      - include
+      - show
+      - display
+      - hide
+      - remove
+      - delete
+      - component
+      - button
+      - input
+      - form
+      - modal
+      - dropdown
+      - tooltip
+
+    low_confidence:  # +1 point each
+      - refactor
+      - clean
+      - cleanup
+      - improve
+      - optimize
+      - simplify
+      - extract
+      - move
+
+  patterns:
+    high_confidence:  # +3 points each
+      - "fix (?:the |a )?bug"
+      - "(?:is|are) (?:broken|not working)"
+      - "add (?:a |an )?(?:button|input|component)"
+
+    medium_confidence:  # +2 points each
+      - "show .* when"
+      - "hide .* when"
+      - "add .* to (?:the )?"
+      - "refactor (?:the )?"
+
+  scope:
+    files_1_to_3: +2
+    estimated_lines_10_to_100: +1
+    no_api_changes: +1
+    no_db_changes: +1
+
+  # Negative indicators (subtract points)
+  negative:
+    - api: -3
+    - database: -3
+    - schema: -3
+    - migration: -3
+    - authentication: -2
+    - security: -3
+
+  threshold: 5
+
+# =============================================================================
+# STANDARD TIER INDICATORS
+# =============================================================================
+standard_indicators:
+
+  keywords:
+    high_confidence:  # +3 points each
+      - feature
+      - functionality
+      - implement
+      - create
+      - build
+      - develop
+
+    medium_confidence:  # +2 points each
+      - api
+      - endpoint
+      - database
+      - schema
+      - migration
+      - authentication
+      - authorization
+      - integration
+      - "third-party"
+      - external
+      - payment
+      - checkout
+      - subscription
+
+    low_confidence:  # +1 point each
+      - form
+      - validation
+      - upload
+      - download
+      - export
+      - import
+      - filter
+      - search
+      - sort
+      - pagination
+
+  patterns:
+    high_confidence:  # +3 points each
+      - "add (?:a |an )?(?:new )?feature"
+      - "implement (?:the |a )?"
+      - "create (?:a |an )?(?:new )?"
+      - "build (?:a |an )?"
+
+    medium_confidence:  # +2 points each
+      - "add (?:an )?api"
+      - "add (?:a )?database"
+      - "user (?:can|should be able to)"
+      - "allow (?:users|user) to"
+
+  scope:
+    files_3_to_10: +2
+    estimated_lines_100_to_500: +1
+    has_api_changes: +2
+    has_db_changes: +2
+    multiple_components: +1
+
+  threshold: 5
+
+# =============================================================================
+# FULL TIER INDICATORS
+# =============================================================================
+full_indicators:
+
+  keywords:
+    high_confidence:  # +3 points each
+      - epic
+      - major
+      - architecture
+      - system
+      - redesign
+      - overhaul
+      - rewrite
+
+    medium_confidence:  # +2 points each
+      - security
+      - encryption
+      - compliance
+      - audit
+      - gdpr
+      - pci
+      - hipaa
+      - migration
+      - "breaking change"
+      - v2
+      - "version 2"
+
+    low_confidence:  # +1 point each
+      - platform
+      - infrastructure
+      - "multi-tenant"
+      - microservice
+      - federation
+
+  patterns:
+    high_confidence:  # +3 points each
+      - "major (?:feature|change|update)"
+      - "redesign (?:the )?"
+      - "rewrite (?:the )?"
+      - "(?:new |complete )?architecture"
+
+    medium_confidence:  # +2 points each
+      - "breaking change"
+      - "migrate (?:from|to)"
+      - "across (?:all |multiple )?"
+
+  scope:
+    files_10_plus: +2
+    estimated_lines_500_plus: +2
+    crosses_system_boundaries: +3
+    breaking_change: +3
+    multiple_services: +2
+
+  threshold: 5
+
+# =============================================================================
+# EMERGENCY TIER INDICATORS
+# =============================================================================
+emergency_indicators:
+
+  keywords:
+    high_confidence:  # +5 points (emergency has higher weights)
+      - urgent
+      - emergency
+      - critical
+      - "production down"
+      - "prod down"
+      - "site down"
+      - outage
+      - hotfix
+      - asap
+      - immediately
+
+    medium_confidence:  # +3 points
+      - "security vulnerability"
+      - "data breach"
+      - exploit
+      - "data loss"
+      - "users can't"
+      - "customers can't"
+      - blocked
+      - "500 error"
+      - "500 errors"
+
+  patterns:
+    high_confidence:  # +5 points
+      - "production (?:is )?(?:down|broken|failing)"
+      - "users? (?:can't|cannot) (?:login|sign in|access)"
+      - "security (?:issue|vulnerability|breach)"
+      - "(?:critical|urgent) (?:bug|issue|problem)"
+
+  # Emergency has lower threshold but higher weights
+  threshold: 5
+
+# =============================================================================
+# DETECTION OUTPUT FORMAT
+# =============================================================================
+detection_output:
+
+  format: |
+    📊 CHANGE ANALYSIS
+    ─────────────────
+    Request: "{user_request}"
+
+    Detected Tier: {tier} {tier_emoji}
+    Confidence: {confidence}%
+
+    Reasoning:
+    {reasoning_points}
+
+    Proposed Process:
+    {process_summary}
+
+    {time_estimate}
+
+    [Proceed with {tier} process?] or override with "/v --{other_tier}"
+
+  confidence_levels:
+    high: ">= 80%"      # Clear indicators, strong match
+    medium: "50-79%"    # Some indicators, reasonable match
+    low: "< 50%"        # Weak indicators, may want to confirm
+
+  # If confidence is low, ask for confirmation
+  low_confidence_prompt: |
+    ⚠️  Detection confidence is low ({confidence}%).
+
+    My best guess: {tier}
+
+    Please confirm or specify:
+    - "/v approve" to proceed with {tier}
+    - "/v --minimal" for quick fix
+    - "/v --light" for bug fix / small change
+    - "/v --standard" for new feature
+    - "/v --full" for major feature
+
+# =============================================================================
+# OVERRIDE RULES
+# =============================================================================
+overrides:
+
+  # User can always override
+  user_override:
+    allowed: true
+    commands:
+      - "--minimal"
+      - "--light"
+      - "--standard"
+      - "--full"
+
+  # Some keywords always trigger specific tiers
+  forced_triggers:
+    emergency:
+      - "urgent"
+      - "emergency"
+      - "production down"
+      - "hotfix"
+    full:
+      - "epic"
+      - "architecture"
+      - "security critical"
+
+  # Some contexts prevent downgrade
+  minimum_tiers:
+    - context: "api_change"
+      minimum: "light"
+    - context: "database_change"
+      minimum: "standard"
+    - context: "security_related"
+      minimum: "standard"
+    - context: "breaking_change"
+      minimum: "full"
+
+# =============================================================================
+# LEARNING HINTS
+# =============================================================================
+# These help Claude understand project-specific patterns over time
+
+project_specific_hints:
+  # Add project-specific keywords that indicate complexity
+  # Example:
+  # high_complexity_areas:
+  #   - "payment"
+  #   - "billing"
+  #   - "subscription"
+  #
+  # low_complexity_areas:
+  #   - "landing page"
+  #   - "static content"
+
+  high_complexity_areas: []
+  low_complexity_areas: []
+
+  # Files that typically require more careful changes
+  sensitive_files: []
+  # Example:
+  #   - "src/auth/*"
+  #   - "src/payment/*"
+  #   - "database/migrations/*"

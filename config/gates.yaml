@@ -1,0 +1,562 @@
+# Vibecoding Workflow 2.0 - Quality Gates Configuration
+# Defines all quality gates and their requirements
+
+version: "2.0"
+
+# =============================================================================
+# GATE OVERVIEW
+# =============================================================================
+#
+#   MINIMAL   LIGHT     STANDARD-P  STANDARD-PROD  FULL
+#   ───────   ─────     ──────────  ─────────────  ────
+#   lint      lint      lint        lint           lint
+#             tests     tests       tests          tests
+#             func      func        func           func
+#                       responsive  responsive     responsive
+#                       ux          ux             ux
+#                                   performance    performance
+#                                   a11y           a11y
+#                                   browser        browser
+#                                   integration    integration
+#                                   security       security
+#                                                  arch_review
+#                                                  security_review
+#
+# =============================================================================
+
+# =============================================================================
+# GATE DEFINITIONS
+# =============================================================================
+gates:
+
+  # ---------------------------------------------------------------------------
+  # GATE 1: CODE QUALITY (LINT)
+  # ---------------------------------------------------------------------------
+  lint:
+    id: 1
+    name: "Code Quality"
+    short_name: "Lint"
+    emoji: "🔍"
+    description: "Code passes linting with zero warnings"
+
+    checks:
+      - name: "Linter passes"
+        command: "npm run lint"
+        expected: "exit code 0, no warnings"
+      - name: "TypeScript compiles"
+        command: "npm run typecheck"
+        expected: "exit code 0"
+        conditional: "if typescript project"
+      - name: "No console.log in production code"
+        check: "manual"
+        expected: "no console.log except in dev utilities"
+      - name: "No commented-out code"
+        check: "manual"
+        expected: "dead code removed, not commented"
+
+    auto_fixable: true
+    fix_command: "npm run lint:fix"
+
+    required_in:
+      - minimal
+      - light
+      - standard
+      - full
+      - emergency  # Even hotfixes should lint (but can defer)
+
+  # ---------------------------------------------------------------------------
+  # GATE 2: TESTS
+  # ---------------------------------------------------------------------------
+  tests:
+    id: 2
+    name: "Tests"
+    short_name: "Tests"
+    emoji: "🧪"
+    description: "All tests pass with adequate coverage"
+
+    checks:
+      - name: "All tests pass"
+        command: "npm run test"
+        expected: "exit code 0"
+      - name: "New code has tests"
+        check: "manual"
+        expected: "new functionality covered by tests"
+      - name: "No skipped tests"
+        check: "manual"
+        expected: "no .skip() or .only() in committed tests"
+
+    coverage:
+      prototype:
+        threshold: 60
+        required: false
+      production:
+        threshold: 80
+        required: true
+        command: "npm run test:coverage"
+
+    required_in:
+      - light
+      - standard
+      - full
+
+    skipped_in:
+      - minimal  # Too small to need tests
+      - emergency  # Critical path only
+
+  # ---------------------------------------------------------------------------
+  # GATE 3: FUNCTIONALITY
+  # ---------------------------------------------------------------------------
+  functionality:
+    id: 3
+    name: "Functionality"
+    short_name: "Func"
+    emoji: "✅"
+    description: "All acceptance criteria are met"
+
+    checks:
+      - name: "Happy path works"
+        check: "manual"
+        expected: "main user flow works as specified"
+      - name: "All acceptance criteria pass"
+        check: "manual"
+        expected: "each Given/When/Then verified"
+      - name: "Edge cases handled"
+        check: "manual"
+        expected: "boundary conditions work correctly"
+      - name: "Error states display properly"
+        check: "manual"
+        expected: "errors are user-friendly, not technical"
+
+    evidence:
+      - "Test results showing AC coverage"
+      - "Manual verification notes"
+
+    required_in:
+      - light
+      - standard
+      - full
+
+  # ---------------------------------------------------------------------------
+  # GATE 4: MOBILE RESPONSIVE
+  # ---------------------------------------------------------------------------
+  responsive:
+    id: 4
+    name: "Mobile Responsive"
+    short_name: "Mobile"
+    emoji: "📱"
+    description: "UI works across all target breakpoints"
+
+    breakpoints:
+      - name: "Mobile Small"
+        width: 320
+        device: "iPhone SE"
+      - name: "Mobile"
+        width: 375
+        device: "iPhone 12"
+      - name: "Tablet"
+        width: 768
+        device: "iPad"
+      - name: "Desktop"
+        width: 1024
+        device: "Laptop"
+      - name: "Desktop Large"
+        width: 1440
+        device: "Desktop"
+
+    checks:
+      - name: "No horizontal scroll"
+        expected: "content fits within viewport"
+      - name: "Touch targets adequate"
+        expected: "minimum 44x44px for interactive elements"
+      - name: "Text readable"
+        expected: "minimum 16px on mobile"
+      - name: "Images scale properly"
+        expected: "no overflow, aspect ratio maintained"
+      - name: "Navigation accessible"
+        expected: "menu works on all sizes"
+
+    tools:
+      - "Browser DevTools device mode"
+      - "Responsively App"
+
+    required_in:
+      - standard  # prototype & production
+      - full
+
+    skipped_in:
+      - minimal
+      - light  # Unless UI-related, then optional
+      - emergency
+
+    conditional: "if has_ui_changes"
+
+  # ---------------------------------------------------------------------------
+  # GATE 5: UX CONSISTENCY
+  # ---------------------------------------------------------------------------
+  ux:
+    id: 5
+    name: "UX Consistency"
+    short_name: "UX"
+    emoji: "🎨"
+    description: "UI matches design system and is user-friendly"
+
+    checks:
+      - name: "Matches design system"
+        expected: "uses established components and patterns"
+      - name: "Consistent spacing"
+        expected: "uses design system spacing scale"
+      - name: "Proper animations"
+        expected: "smooth, purposeful transitions"
+      - name: "Clear error messages"
+        expected: "user-friendly, actionable errors"
+      - name: "Loading states"
+        expected: "feedback during async operations"
+      - name: "Empty states"
+        expected: "helpful messaging when no data"
+
+    required_in:
+      - standard
+      - full
+
+    conditional: "if has_ui_changes"
+
+  # ---------------------------------------------------------------------------
+  # GATE 6: PERFORMANCE (Production only)
+  # ---------------------------------------------------------------------------
+  performance:
+    id: 6
+    name: "Performance"
+    short_name: "Perf"
+    emoji: "⚡"
+    description: "Page loads quickly and runs smoothly"
+
+    metrics:
+      lighthouse_score:
+        target: 90
+        minimum: 80
+      first_contentful_paint:
+        target: "< 1.5s"
+        maximum: "2.5s"
+      time_to_interactive:
+        target: "< 3s"
+        maximum: "5s"
+      cumulative_layout_shift:
+        target: "< 0.1"
+        maximum: "0.25"
+      largest_contentful_paint:
+        target: "< 2.5s"
+        maximum: "4s"
+
+    checks:
+      - name: "Lighthouse Performance > 90"
+        command: "npx lighthouse --only-categories=performance"
+        expected: "score >= 90"
+      - name: "No unnecessary re-renders"
+        check: "React DevTools Profiler"
+        expected: "components render only when needed"
+      - name: "Images optimized"
+        expected: "proper format, sizing, lazy loading"
+      - name: "Bundle size reasonable"
+        expected: "main bundle < 200KB gzipped"
+
+    tools:
+      - "Lighthouse"
+      - "WebPageTest"
+      - "Chrome DevTools Performance tab"
+
+    required_in:
+      - full
+
+    production_only: true
+    skipped_in:
+      - minimal
+      - light
+      - standard  # In prototype mode
+      - emergency
+
+  # ---------------------------------------------------------------------------
+  # GATE 7: ACCESSIBILITY (Production only)
+  # ---------------------------------------------------------------------------
+  accessibility:
+    id: 7
+    name: "Accessibility"
+    short_name: "A11y"
+    emoji: "♿"
+    description: "WCAG 2.1 AA compliant"
+
+    standard: "WCAG 2.1 AA"
+
+    checks:
+      - name: "Automated a11y tests pass"
+        command: "npx axe"
+        expected: "zero violations"
+      - name: "Keyboard navigation works"
+        check: "manual"
+        expected: "all interactive elements reachable via Tab"
+      - name: "Screen reader compatible"
+        check: "manual"
+        expected: "VoiceOver/NVDA can navigate"
+      - name: "Color contrast sufficient"
+        expected: "4.5:1 for normal text, 3:1 for large"
+      - name: "Focus indicators visible"
+        expected: "clear focus state on all interactive elements"
+      - name: "Alt text for images"
+        expected: "meaningful alt text, decorative images have empty alt"
+      - name: "Form labels present"
+        expected: "all inputs have associated labels"
+      - name: "ARIA used correctly"
+        expected: "ARIA roles and attributes are valid"
+
+    tools:
+      - "axe DevTools"
+      - "WAVE"
+      - "VoiceOver (Mac)"
+      - "NVDA (Windows)"
+
+    required_in:
+      - full
+
+    production_only: true
+
+  # ---------------------------------------------------------------------------
+  # GATE 8: BROWSER TESTING (Production only)
+  # ---------------------------------------------------------------------------
+  browser:
+    id: 8
+    name: "Browser Testing"
+    short_name: "Browser"
+    emoji: "🌐"
+    description: "Works in all target browsers"
+
+    browsers:
+      desktop:
+        - name: "Chrome"
+          version: "latest"
+          required: true
+        - name: "Safari"
+          version: "latest"
+          required: true
+        - name: "Firefox"
+          version: "latest"
+          required: true
+        - name: "Edge"
+          version: "latest"
+          required: false
+
+      mobile:
+        - name: "Chrome Mobile"
+          version: "latest"
+          required: true
+        - name: "Safari Mobile"
+          version: "latest"
+          required: true
+
+    checks:
+      - name: "No console errors"
+        expected: "zero JS errors in console"
+      - name: "Layout correct"
+        expected: "no visual regressions"
+      - name: "Interactions work"
+        expected: "clicks, hovers, forms work correctly"
+
+    tools:
+      - "BrowserStack"
+      - "Sauce Labs"
+      - "Manual testing"
+
+    required_in:
+      - full
+
+    production_only: true
+
+  # ---------------------------------------------------------------------------
+  # GATE 9: INTEGRATION (Production only)
+  # ---------------------------------------------------------------------------
+  integration:
+    id: 9
+    name: "Integration"
+    short_name: "Integration"
+    emoji: "🔗"
+    description: "APIs and external services work correctly"
+
+    checks:
+      - name: "API calls succeed"
+        expected: "all endpoints return expected data"
+      - name: "Error handling works"
+        expected: "network failures handled gracefully"
+      - name: "Loading states display"
+        expected: "user sees feedback during API calls"
+      - name: "Data flows correctly"
+        expected: "state updates after mutations"
+      - name: "Third-party integrations work"
+        expected: "external services respond correctly"
+
+    evidence:
+      - "Integration test results"
+      - "Manual API verification"
+
+    required_in:
+      - full
+
+    production_only: true
+
+  # ---------------------------------------------------------------------------
+  # GATE 10: SECURITY (Production only)
+  # ---------------------------------------------------------------------------
+  security:
+    id: 10
+    name: "Security"
+    short_name: "Security"
+    emoji: "🔒"
+    description: "No security vulnerabilities"
+
+    checks:
+      - name: "No XSS vulnerabilities"
+        expected: "user input properly escaped/sanitized"
+      - name: "No SQL injection"
+        expected: "parameterized queries used"
+      - name: "No sensitive data in code"
+        expected: "secrets in env vars, not committed"
+      - name: "HTTPS enforced"
+        expected: "all requests over HTTPS"
+      - name: "Auth tokens secure"
+        expected: "httpOnly cookies or secure storage"
+      - name: "CORS configured correctly"
+        expected: "only allowed origins can access"
+      - name: "Dependency vulnerabilities"
+        command: "npm audit"
+        expected: "no high/critical vulnerabilities"
+
+    tools:
+      - "npm audit"
+      - "Snyk"
+      - "OWASP ZAP"
+
+    required_in:
+      - full
+
+    production_only: true
+
+  # ---------------------------------------------------------------------------
+  # ADDITIONAL GATES (Full tier only)
+  # ---------------------------------------------------------------------------
+  architecture_review:
+    id: 11
+    name: "Architecture Review"
+    short_name: "Arch"
+    emoji: "🏗️"
+    description: "Architectural changes reviewed"
+
+    checks:
+      - name: "ADR created"
+        expected: "Architecture Decision Record documenting change"
+      - name: "Patterns consistent"
+        expected: "follows established architecture patterns"
+      - name: "Scalability considered"
+        expected: "solution scales appropriately"
+      - name: "Tech debt assessed"
+        expected: "any new debt documented"
+
+    required_in:
+      - full
+
+    conditional: "if architectural_change"
+
+  security_review:
+    id: 12
+    name: "Security Review"
+    short_name: "SecReview"
+    emoji: "🛡️"
+    description: "Security-critical changes reviewed"
+
+    checks:
+      - name: "Threat model updated"
+        expected: "new attack vectors considered"
+      - name: "Auth flow verified"
+        expected: "authentication/authorization correct"
+      - name: "Data handling reviewed"
+        expected: "sensitive data properly protected"
+      - name: "Penetration testing"
+        expected: "if applicable, pen test conducted"
+
+    required_in:
+      - full
+
+    conditional: "if security_related"
+
+# =============================================================================
+# GATE TIERS SUMMARY
+# =============================================================================
+tier_gates:
+
+  minimal:
+    required: [lint]
+    optional: []
+    skipped: [tests, functionality, responsive, ux, performance,
+              accessibility, browser, integration, security]
+
+  light:
+    required: [lint, tests, functionality]
+    optional: [responsive, ux]  # If UI-related
+    skipped: [performance, accessibility, browser, integration, security]
+
+  standard_prototype:
+    required: [lint, tests, functionality, responsive, ux]
+    optional: []
+    skipped: [performance, accessibility, browser, integration, security]
+
+  standard_production:
+    required: [lint, tests, functionality, responsive, ux,
+               performance, accessibility, browser, integration, security]
+    optional: []
+    skipped: []
+
+  full:
+    required: [lint, tests, functionality, responsive, ux,
+               performance, accessibility, browser, integration, security]
+    optional: [architecture_review, security_review]  # Based on change type
+    skipped: []
+
+  emergency:
+    required: []  # Critical path only
+    deferred: [lint, tests]  # Must be done within 24h
+    skipped: [responsive, ux, performance, accessibility, browser,
+              integration, security]
+
+# =============================================================================
+# GATE OUTPUT FORMATS
+# =============================================================================
+output:
+
+  status_display: |
+    QUALITY GATES STATUS
+    ════════════════════
+
+    {gate_list}
+
+    {summary}
+
+  gate_list_item: |
+    {emoji} {name}: {status}
+
+  status_icons:
+    passed: "✅"
+    failed: "❌"
+    pending: "⏳"
+    skipped: "⏭️"
+    deferred: "🔜"
+
+  summary_all_passed: |
+    ────────────────────
+    ✅ ALL GATES PASSED
+
+  summary_some_failed: |
+    ────────────────────
+    ❌ {failed_count} GATE(S) FAILED
+    Must fix before proceeding.
+
+  summary_prototype: |
+    ────────────────────
+    📝 PROTOTYPE MODE
+    {passed}/{total} required gates passed
+    {skipped} gates skipped (production only)

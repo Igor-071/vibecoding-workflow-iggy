@@ -1,0 +1,594 @@
+# Vibecoding Workflow 2.0 - Tier Definitions
+# Defines the four ceremony levels and their processes
+
+version: "2.0"
+
+# =============================================================================
+# TIER OVERVIEW
+# =============================================================================
+#
+#   MINIMAL    LIGHT      STANDARD    FULL        EMERGENCY
+#   ───────    ─────      ────────    ────        ─────────
+#   ~5 min     ~30 min    ~2-4 hrs    ~1-3 days   ASAP
+#   0 stops    1 stop     2 stops     3+ stops    1 stop
+#   1 gate     3 gates    5/10 gates  All gates   Critical only
+#
+# =============================================================================
+
+tiers:
+
+  # ===========================================================================
+  # MINIMAL TIER - Quick fixes, typos, minor adjustments
+  # ===========================================================================
+  minimal:
+    name: "Minimal"
+    emoji: "⚡"
+    description: "For typos, copy changes, simple styling tweaks"
+    estimated_time: "~5 minutes"
+
+    # When to use
+    use_when:
+      - "Fixing typos or spelling errors"
+      - "Changing text/copy content"
+      - "Simple CSS adjustments (color, padding, margin)"
+      - "Config value changes"
+      - "Updating comments or documentation"
+
+    # Do not use when
+    avoid_when:
+      - "Change affects functionality"
+      - "Multiple files need changes"
+      - "Tests might be affected"
+      - "User-facing behavior changes"
+
+    # Process definition
+    phases:
+      - name: "understand"
+        description: "Confirm understanding of the change"
+        actions:
+          - "Parse user request"
+          - "Identify file(s) to change"
+          - "Confirm scope is minimal"
+        output: "Brief confirmation of what will change"
+        stop_for_approval: false
+
+      - name: "implement"
+        description: "Make the change"
+        actions:
+          - "Edit file(s)"
+          - "Run linter"
+        output: "Diff of changes"
+        stop_for_approval: false
+
+      - name: "complete"
+        description: "Present completed change"
+        actions:
+          - "Show what changed"
+          - "Confirm lint passed"
+          - "Offer commit option"
+        output: "completion_minimal"
+        stop_for_approval: false  # User can just continue or commit
+
+    # Quality gates
+    gates:
+      required:
+        - lint
+      optional: []
+      skipped:
+        - tests
+        - functionality
+        - responsive
+        - ux
+        - performance
+        - accessibility
+        - browser
+        - integration
+        - security
+
+    # Documentation
+    documentation:
+      spec: false
+      review: false
+      feature_doc: false
+      commit_message_only: true
+
+    # Traceability
+    traceability:
+      required: false
+
+  # ===========================================================================
+  # LIGHT TIER - Bug fixes, small additions, refactoring
+  # ===========================================================================
+  light:
+    name: "Light"
+    emoji: "🔧"
+    description: "For bug fixes, small features, refactoring"
+    estimated_time: "~30 minutes"
+
+    use_when:
+      - "Fixing bugs (non-critical)"
+      - "Adding small UI components"
+      - "Minor feature enhancements"
+      - "Refactoring code (no behavior change)"
+      - "1-3 files affected"
+
+    avoid_when:
+      - "New user-facing feature"
+      - "API changes"
+      - "Database changes"
+      - "Security-related changes"
+      - "More than 100 lines of code"
+
+    phases:
+      - name: "understand"
+        description: "Explain approach"
+        actions:
+          - "Analyze the request"
+          - "Identify affected files"
+          - "Describe solution approach"
+        output: "Brief explanation of approach"
+        stop_for_approval: false
+
+      - name: "implement"
+        description: "Implement with basic tests"
+        actions:
+          - "Write/update code"
+          - "Add or update relevant tests"
+          - "Run tests"
+          - "Run linter"
+        output: "Implementation progress"
+        stop_for_approval: false
+
+      - name: "verify"
+        description: "Quick verification"
+        actions:
+          - "Verify tests pass"
+          - "Check lint"
+          - "Basic functionality check"
+        output: "Verification results"
+        stop_for_approval: false
+
+      - name: "present"
+        description: "Present completed work"
+        actions:
+          - "Summarize changes"
+          - "Show test results"
+          - "Show gate status"
+        output: "completion_light"
+        stop_for_approval: true  # STOP: Wait for approval
+
+    gates:
+      required:
+        - lint
+        - tests
+        - functionality
+      optional:
+        - responsive  # If UI-related
+        - ux          # If UI-related
+      skipped:
+        - performance
+        - accessibility
+        - browser
+        - integration
+        - security
+
+    documentation:
+      spec: false
+      review: false
+      feature_doc: false
+      detailed_commit: true
+
+    traceability:
+      required: false
+
+  # ===========================================================================
+  # STANDARD TIER - New features, significant changes
+  # ===========================================================================
+  standard:
+    name: "Standard"
+    emoji: "📋"
+    description: "For new features and significant changes"
+    estimated_time: "~2-4 hours"
+
+    use_when:
+      - "New user-facing features"
+      - "API additions or changes"
+      - "Database schema changes"
+      - "Significant bug fixes"
+      - "Features requiring multiple components"
+
+    avoid_when:
+      - "Simple bug fixes"
+      - "Styling-only changes"
+      - "Major architectural changes (use FULL)"
+      - "Security-critical features (use FULL)"
+
+    phases:
+      - name: "spec"
+        description: "Create inline specification"
+        actions:
+          - "Define goal and scope"
+          - "Write acceptance criteria (Given/When/Then)"
+          - "Outline technical approach"
+        output: "inline_spec"
+        stop_for_approval: true  # STOP 1: Approve spec
+
+      - name: "implement"
+        description: "TDD Implementation"
+        actions:
+          - "For each acceptance criterion:"
+          - "  - Write failing test (RED)"
+          - "  - Implement minimum code (GREEN)"
+          - "  - Refactor if needed (BLUE)"
+          - "Update traceability"
+        output: "implementation_progress"
+        stop_for_approval: false
+
+      - name: "verify"
+        description: "Run quality gates"
+        actions:
+          - "Run all required gates"
+          - "Fix any failures"
+          - "Prepare summary"
+        output: "gates_status"
+        stop_for_approval: false
+
+      - name: "present"
+        description: "Present for approval"
+        actions:
+          - "Show acceptance criteria status"
+          - "Show traceability matrix"
+          - "Show gate results"
+          - "Provide test instructions"
+        output: "completion_standard"
+        stop_for_approval: true  # STOP 2: Final approval
+
+      - name: "document"
+        description: "Generate documentation"
+        actions:
+          - "Create brief feature documentation"
+          - "Update relevant docs"
+        output: "documentation_generated"
+        stop_for_approval: false
+
+    gates:
+      # In prototype mode
+      prototype:
+        required:
+          - lint
+          - tests
+          - functionality
+          - responsive
+          - ux
+      # In production mode
+      production:
+        required:
+          - lint
+          - tests
+          - functionality
+          - responsive
+          - ux
+          - performance
+          - accessibility
+          - browser
+          - integration
+          - security
+
+    documentation:
+      spec: true           # Inline spec (not separate file)
+      spec_location: inline
+      review: false        # Brief review, not separate file
+      feature_doc: true
+      feature_doc_location: "docs/features/"
+
+    traceability:
+      required: true
+      format: inline       # Show in completion output
+
+  # ===========================================================================
+  # FULL TIER - Major features, epics, architectural changes
+  # ===========================================================================
+  full:
+    name: "Full"
+    emoji: "📚"
+    description: "For major features, epics, and architectural changes"
+    estimated_time: "~1-3 days"
+
+    use_when:
+      - "Major new features / epics"
+      - "Architectural changes"
+      - "Security-critical features"
+      - "Features crossing multiple systems"
+      - "Breaking changes"
+      - "Compliance-related features"
+
+    avoid_when:
+      - "Simple features"
+      - "Time-sensitive changes"
+      - "Prototyping / experimentation"
+
+    phases:
+      - name: "spec"
+        description: "Create full specification document"
+        actions:
+          - "Create spec file in docs/specs/"
+          - "Define comprehensive acceptance criteria"
+          - "Document technical design"
+          - "Identify risks and dependencies"
+          - "Create empty traceability matrix"
+        output: "spec_document"
+        stop_for_approval: true  # STOP 1: Approve spec
+
+      - name: "test_plan"
+        description: "Create test strategy"
+        actions:
+          - "Plan tests for each criterion"
+          - "Identify edge cases"
+          - "Define integration test approach"
+        output: "test_plan"
+        stop_for_approval: true  # STOP 2: Approve test plan
+
+      - name: "implement"
+        description: "TDD Implementation with progress updates"
+        actions:
+          - "For each acceptance criterion:"
+          - "  - Write failing test (RED)"
+          - "  - Implement minimum code (GREEN)"
+          - "  - Refactor if needed (BLUE)"
+          - "  - Update traceability matrix"
+          - "Provide progress updates"
+        output: "implementation_progress"
+        progress_updates: true
+        stop_for_approval: false
+
+      - name: "review"
+        description: "Comprehensive review"
+        actions:
+          - "Run ALL quality gates"
+          - "Create review document"
+          - "Security review (if applicable)"
+          - "Architecture review (if applicable)"
+        output: "review_document"
+        stop_for_approval: true  # STOP 3: Final review
+
+      - name: "document"
+        description: "Generate full documentation"
+        actions:
+          - "Create feature documentation"
+          - "Create/update ADR if architectural"
+          - "Update API documentation"
+          - "Update user guides"
+        output: "full_documentation"
+        stop_for_approval: false
+
+    gates:
+      required:
+        - lint
+        - tests
+        - functionality
+        - responsive
+        - ux
+        - performance
+        - accessibility
+        - browser
+        - integration
+        - security
+      additional:
+        - architecture_review  # If architectural changes
+        - security_review      # If security-related
+
+    documentation:
+      spec: true
+      spec_location: "docs/specs/"
+      review: true
+      review_location: "docs/reviews/"
+      feature_doc: true
+      feature_doc_location: "docs/features/"
+      adr: conditional  # If architectural
+      adr_location: "docs/adr/"
+
+    traceability:
+      required: true
+      format: file  # Separate section in spec doc
+
+  # ===========================================================================
+  # EMERGENCY TIER - Production hotfixes
+  # ===========================================================================
+  emergency:
+    name: "Emergency"
+    emoji: "🚨"
+    description: "For critical production issues"
+    estimated_time: "ASAP"
+
+    use_when:
+      - "Production is broken"
+      - "Security vulnerability discovered"
+      - "Data loss risk"
+      - "Critical functionality blocked"
+
+    avoid_when:
+      - "Issue can wait until next day"
+      - "Workaround exists"
+      - "Not user-impacting"
+
+    phases:
+      - name: "investigate"
+        description: "Rapid investigation"
+        actions:
+          - "Identify root cause quickly"
+          - "Assess blast radius"
+          - "Determine minimal fix"
+        output: "investigation_summary"
+        stop_for_approval: false
+        time_limit: "15 minutes max"
+
+      - name: "fix"
+        description: "Implement minimal fix"
+        actions:
+          - "Write smallest possible fix"
+          - "Add critical regression test"
+          - "Verify fix works"
+        output: "fix_ready"
+        stop_for_approval: false
+
+      - name: "verify"
+        description: "Critical path verification"
+        actions:
+          - "Run critical tests only"
+          - "Verify fix doesn't break other things"
+          - "Manual smoke test"
+        output: "verification_complete"
+        stop_for_approval: true  # STOP: Deploy approval
+
+      - name: "deploy"
+        description: "Deploy fix"
+        actions:
+          - "Commit with hotfix message"
+          - "Push to production"
+          - "Monitor for issues"
+        output: "deployed"
+        stop_for_approval: false
+
+      - name: "postmortem"
+        description: "Schedule post-mortem"
+        actions:
+          - "Create post-mortem stub"
+          - "Schedule detailed analysis"
+          - "Set 24-hour reminder"
+        output: "postmortem_scheduled"
+        required_within: "24 hours"
+
+    gates:
+      required:
+        - critical_tests  # Only tests for affected functionality
+      skipped:
+        - lint           # Can fix later
+        - full_tests     # Can run later
+        - all_others     # Speed is priority
+
+    documentation:
+      spec: false
+      review: false
+      feature_doc: false
+      postmortem: true
+      postmortem_required_within: "24 hours"
+      postmortem_location: "docs/bugs/"
+
+    traceability:
+      required: false  # Add after in post-mortem
+
+# =============================================================================
+# TIER TRANSITION RULES
+# =============================================================================
+transitions:
+
+  # Upgrading to higher tier
+  upgrade:
+    allowed: true
+    triggers:
+      - "User requests upgrade (/v --standard)"
+      - "Complexity discovered during implementation"
+      - "Scope creep detected"
+    process:
+      - "Pause current workflow"
+      - "Announce tier upgrade"
+      - "Create appropriate artifacts for new tier"
+      - "Continue from current phase"
+
+  # Downgrading to lower tier
+  downgrade:
+    allowed: true
+    triggers:
+      - "User requests downgrade (/v --light)"
+      - "Task simpler than anticipated"
+    process:
+      - "Confirm with user"
+      - "Skip remaining higher-tier requirements"
+      - "Continue with lower-tier process"
+    restrictions:
+      - "Cannot downgrade after spec approved in FULL tier"
+      - "Cannot downgrade EMERGENCY"
+
+# =============================================================================
+# OUTPUT TEMPLATES
+# =============================================================================
+output_templates:
+
+  completion_minimal: |
+    ✅ DONE
+
+    Changed: {file_path} (line {line_number})
+    {diff}
+
+    Lint: {lint_status}
+
+    Say "/v commit" when ready.
+
+  completion_light: |
+    ✅ {change_type} COMPLETE: {title}
+
+    WHAT WAS {action}:
+    {description}
+
+    CHANGES MADE:
+    {changes_list}
+
+    TESTS:
+    {test_results}
+
+    VERIFIED:
+    {verification_list}
+
+    AWAITING APPROVAL - Say "/v approve" to proceed
+
+  inline_spec: |
+    📋 FEATURE SPEC: {title}
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    GOAL: {goal}
+
+    ACCEPTANCE CRITERIA:
+    {acceptance_criteria}
+
+    TECHNICAL APPROACH:
+    {technical_approach}
+
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    APPROVE SPEC? Say "/v approve" to proceed
+
+  completion_standard: |
+    ## ✅ FEATURE COMPLETE: {title}
+
+    ### What Was Built
+    {description}
+
+    ### Acceptance Criteria Status
+    | Criterion | Description | Status |
+    |-----------|-------------|--------|
+    {criteria_table}
+
+    ### Quality Gates
+    {gates_status}
+
+    ### How to Test
+    {test_instructions}
+
+    ### Traceability
+    {traceability_matrix}
+
+    **AWAITING APPROVAL** - Say "/v approve" to complete
+
+  emergency_fix: |
+    🚨 HOTFIX READY
+
+    ISSUE: {issue}
+    ROOT CAUSE: {root_cause}
+    FIX: {fix_description}
+
+    FILE: {file_path} (line {line_number})
+
+    CRITICAL TEST: {test_status}
+
+    ⚠️  This is a minimal fix. Full investigation required.
+
+    DEPLOY NOW? Say "/v approve" to deploy

@@ -1,0 +1,275 @@
+# Vibecoding Workflow 2.0 - Command Definitions
+# These commands are recognized by Claude for workflow control
+
+version: "2.0"
+
+# =============================================================================
+# COMMAND PREFIX
+# =============================================================================
+prefix:
+  full: "/vibe"
+  short: "/v"
+  # Both "/vibe fix" and "/v fix" are equivalent
+
+# =============================================================================
+# CHANGE COMMANDS - Initiate work with implied tier
+# =============================================================================
+change_commands:
+
+  # MINIMAL TIER
+  fix:
+    aliases: [fix, bugfix]
+    default_tier: minimal
+    description: "Quick bug fixes, typos, small corrections"
+    examples:
+      - "/v fix typo in header"
+      - "/v fix button color"
+    upgradeable: true  # Can be upgraded to higher tier if complex
+
+  tweak:
+    aliases: [tweak, adjust]
+    default_tier: minimal
+    description: "Minor styling or config adjustments"
+    examples:
+      - "/v tweak padding on cards"
+      - "/v tweak font size"
+
+  # LIGHT TIER
+  update:
+    aliases: [update, modify, change]
+    default_tier: light
+    description: "Update existing functionality"
+    examples:
+      - "/v update user profile validation"
+      - "/v update error messages"
+
+  add:
+    aliases: [add, include]
+    default_tier: light
+    description: "Add small component or functionality"
+    examples:
+      - "/v add loading spinner to button"
+      - "/v add tooltip to icon"
+
+  refactor:
+    aliases: [refactor, refac, clean]
+    default_tier: light
+    description: "Code refactoring without behavior change"
+    examples:
+      - "/v refactor auth module"
+      - "/v refac duplicate code in utils"
+
+  # STANDARD TIER
+  feature:
+    aliases: [feature, feat, implement]
+    default_tier: standard
+    description: "New feature implementation"
+    examples:
+      - "/v feature user authentication"
+      - "/v feat dark mode"
+
+  # FULL TIER
+  epic:
+    aliases: [epic, major]
+    default_tier: full
+    description: "Large, complex features or architectural changes"
+    examples:
+      - "/v epic payment processing system"
+      - "/v major redesign navigation"
+
+  # EMERGENCY
+  hotfix:
+    aliases: [hotfix, hot, emergency, urgent]
+    default_tier: emergency
+    description: "Emergency production fixes"
+    examples:
+      - "/v hotfix login broken"
+      - "/v hot production 500 errors"
+    requires_postmortem: true
+
+# =============================================================================
+# TIER MODIFIER FLAGS
+# =============================================================================
+tier_modifiers:
+  # Override auto-detection to specific tier
+  --minimal:
+    short: -m
+    description: "Force minimal tier"
+  --light:
+    short: -l
+    description: "Force light tier"
+  --standard:
+    short: -s
+    description: "Force standard tier"
+  --full:
+    short: -f
+    description: "Force full tier"
+
+  # Other modifiers
+  --skip-test:
+    description: "Skip test requirement (minimal tier only)"
+    allowed_tiers: [minimal]
+  --with-spec:
+    description: "Create spec even for light tier"
+    creates: spec
+  --with-review:
+    description: "Create review doc even for light tier"
+    creates: review
+
+# =============================================================================
+# WORKFLOW CONTROL COMMANDS
+# =============================================================================
+workflow_commands:
+
+  status:
+    aliases: [status, state, where]
+    description: "Show current workflow state and progress"
+    output: "status_display"
+
+  approve:
+    aliases: [approve, ok, lgtm, "looks good", approved, "green light"]
+    description: "Approve current phase and proceed"
+    triggers: "phase_transition"
+
+  reject:
+    aliases: [reject, no, "needs changes", "not yet"]
+    description: "Reject current phase, request changes"
+    triggers: "revision_mode"
+
+  skip:
+    aliases: [skip]
+    description: "Skip current phase (requires confirmation)"
+    syntax: "/v skip <phase>"
+    requires_confirmation: true
+    not_skippable: [implementation, critical_tests]
+
+  pause:
+    aliases: [pause, stop, later]
+    description: "Pause current workflow, save state"
+    triggers: "save_state"
+
+  resume:
+    aliases: [resume, continue, back]
+    description: "Resume paused workflow"
+    triggers: "restore_state"
+
+  abort:
+    aliases: [abort, cancel, abandon]
+    description: "Abandon current workflow"
+    requires_confirmation: true
+
+  restart:
+    aliases: [restart, redo]
+    description: "Restart current phase"
+    requires_confirmation: true
+
+# =============================================================================
+# GIT COMMANDS
+# =============================================================================
+git_commands:
+
+  commit:
+    aliases: [commit, save]
+    description: "Create git commit with conventional commit message"
+    requires: "workflow_complete_or_approved"
+
+  push:
+    aliases: [push]
+    description: "Push commits to remote"
+    requires: "commit_exists"
+
+  ship:
+    aliases: [ship, deploy, "ship it"]
+    description: "Approve + Commit + Push in one command"
+    triggers: [approve, commit, push]
+
+# =============================================================================
+# QUERY COMMANDS
+# =============================================================================
+query_commands:
+
+  help:
+    aliases: [help, commands, "?"]
+    description: "Show all available commands"
+    output: "help_display"
+
+  gates:
+    aliases: [gates, quality, checks]
+    description: "Show quality gates status"
+    output: "gates_display"
+
+  trace:
+    aliases: [trace, traceability, matrix]
+    description: "Show spec-to-test traceability matrix"
+    output: "traceability_display"
+
+  history:
+    aliases: [history, completed, done]
+    description: "Show completed workflows"
+    output: "history_display"
+
+  config:
+    aliases: [config, settings]
+    description: "Show current configuration"
+    output: "config_display"
+
+# =============================================================================
+# DOCUMENTATION COMMANDS
+# =============================================================================
+doc_commands:
+
+  spec:
+    aliases: [spec, specification]
+    description: "Show or create specification"
+    syntax: "/v spec [feature-name]"
+
+  review:
+    aliases: [review]
+    description: "Show or create review document"
+    syntax: "/v review [feature-name]"
+
+  postmortem:
+    aliases: [postmortem, pm, "post-mortem"]
+    description: "Create bug post-mortem"
+    syntax: "/v postmortem [bug-description]"
+
+# =============================================================================
+# NATURAL LANGUAGE TRIGGERS
+# =============================================================================
+# Claude should also recognize these natural phrases
+natural_triggers:
+
+  approval_phrases:
+    - "looks good"
+    - "approved"
+    - "green light"
+    - "ship it"
+    - "let's go"
+    - "proceed"
+    - "go ahead"
+    - "that's fine"
+    - "perfect"
+    - "do it"
+
+  rejection_phrases:
+    - "needs changes"
+    - "not quite"
+    - "almost"
+    - "change this"
+    - "wait"
+    - "hold on"
+    - "actually"
+
+  tier_upgrade_phrases:
+    - "this is bigger than I thought"
+    - "let's do this properly"
+    - "add more ceremony"
+    - "full process"
+    - "by the book"
+
+  tier_downgrade_phrases:
+    - "keep it simple"
+    - "just do it quick"
+    - "no need for all that"
+    - "skip the ceremony"
+    - "fast track this"
