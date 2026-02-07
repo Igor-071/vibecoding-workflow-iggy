@@ -1,0 +1,48 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Write",
+      "Edit",
+      "Bash(npm run *)",
+      "Bash(npx *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git branch*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git fetch *)",
+      "Bash(git pull *)",
+      "Bash(git worktree *)",
+      "Bash(gh *)",
+      "Bash(ls *)",
+      "WebFetch",
+      "WebSearch"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -f*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "command": "filepath=\"$CLAUDE_FILE_PATH\"; if echo \"$filepath\" | grep -qE '\\.(js|jsx|ts|tsx|vue|svelte)$'; then npx eslint --fix \"$filepath\" 2>/dev/null; fi",
+        "description": "Auto-lint JS/TS files on every write"
+      }
+    ],
+    "PreCommit": [
+      {
+        "command": "npm run lint 2>/dev/null && npm run test 2>/dev/null",
+        "description": "Lint + test before every commit"
+      }
+    ]
+  }
+}

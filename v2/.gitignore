@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+.env.local
+CLAUDE.local.md
+.claude/memory.json
+*.log
+.DS_Store
