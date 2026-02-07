@@ -1,0 +1,13 @@
+# CLAUDE.local.md — Personal preferences (not checked into git)
+# Copy this to CLAUDE.local.md and customize.
+
+## My Preferences
+- I prefer TypeScript over JavaScript
+- Use functional components, not class components
+- I like concise commit messages
+- When in doubt, ask me — don't guess
+
+## My Shortcuts
+- "ship it" = commit + push + create PR
+- "lgtm" = approved, proceed to next phase
+- "nuke it" = discard current approach, start fresh
