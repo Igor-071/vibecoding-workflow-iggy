@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Documentation
-    url: https://github.com/[OWNER]/[REPO]/tree/main/docs
+    url: https://github.com/Igor-071/vibecoding-workflow-iggy/tree/main/docs
     about: Check the documentation before opening an issue

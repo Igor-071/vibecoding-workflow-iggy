@@ -190,10 +190,9 @@ if [ -f "config/workflow.config.yaml" ]; then
 
     # Disable mobile gates for non-web projects
     if [ "$PROJECT_TYPE" = "backend" ] || [ "$PROJECT_TYPE" = "cli" ]; then
-        sed -i.bak "s/mobile_responsive:/mobile_responsive:\n    enabled: false/g" config/workflow.config.yaml
-        sed -i.bak "s/accessibility:/accessibility:\n    enabled: false/g" config/workflow.config.yaml
-        sed -i.bak "s/browser_testing:/browser_testing:\n    enabled: false/g" config/workflow.config.yaml
-        sed -i.bak "s/ux_consistency:/ux_consistency:\n    enabled: false/g" config/workflow.config.yaml
+        sed -i.bak "s/  responsive:/  responsive:\n    enabled: false/g" config/workflow.config.yaml
+        sed -i.bak "s/  accessibility:/  accessibility:\n    enabled: false/g" config/workflow.config.yaml
+        sed -i.bak "s/  cross_browser:/  cross_browser:\n    enabled: false/g" config/workflow.config.yaml
         sed -i.bak "s/mobile_first:/mobile_first:\n  enabled: false/g" config/workflow.config.yaml
     fi
 

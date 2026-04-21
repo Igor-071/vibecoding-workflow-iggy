@@ -118,33 +118,32 @@ workflow:
 # └─────────────────────┴───────────┴────────────┴──────────────────────────────┘
 
 quality_gates:
-  # ESSENTIAL GATES (Both Prototype & Production)
-  code_quality:
+  # PROTOTYPE GATES (5 essential — always required)
+  # Gate names match .claude/skills/review/SKILL.md exactly.
+  tests_pass:
     enabled: true
     prototype: true
-    description: "Linting passes, no warnings, proper error handling"
+    description: "npm run test — 0 failures"
 
-  functionality:
+  lint_clean:
     enabled: true
     prototype: true
-    description: "All acceptance criteria met, happy paths work"
+    description: "npm run lint — 0 warnings, no console.log in production code"
 
-  mobile_responsive:
+  all_acs_met:
     enabled: true
     prototype: true
-    description: "Works at all breakpoints"
+    description: "Every AC in the spec maps to a passing test; traceability matrix complete"
 
-  ux_consistency:
+  responsive:
     enabled: true
     prototype: true
-    description: "Matches design system, proper spacing"
-    # NOTE: Covered by the 'Code review' gate in .claude/skills/review/SKILL.md
+    description: "Works at 320/375/768/1024/1440px"
 
-  documentation:
+  code_review:
     enabled: true
     prototype: true
-    description: "Code commented where needed, specs updated"
-    # NOTE: Covered by the 'Code review' gate in .claude/skills/review/SKILL.md
+    description: "No dead code, hardcoded values, or boundary errors; UX/design consistency"
 
   # PRODUCTION-ONLY GATES (skip in Prototype mode)
   performance:
