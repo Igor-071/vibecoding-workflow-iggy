@@ -54,8 +54,8 @@ case $APPROACH_CHOICE in
         echo -e "${GREEN}✓ Building for PRODUCTION (full rigor)${NC}"
         ;;
     *)
-        APPROACH="prototype"
-        echo -e "${YELLOW}Defaulting to PROTOTYPE mode${NC}"
+        echo -e "${RED}Invalid choice. Please enter 1 or 2.${NC}"
+        exit 1
         ;;
 esac
 echo ""

@@ -45,16 +45,16 @@ BLUE  → Refactor, keep tests passing
 
 | Gate | Check |
 |------|-------|
-| Code Quality | Lint passes, no warnings |
-| Functionality | All AC met |
-| Mobile | 320px, 375px, 768px, 1024px, 1440px |
-| Performance | Lighthouse > 90 |
-| Accessibility | WCAG 2.1 AA |
-| Browser | Chrome, Safari, Firefox |
-| Integration | APIs work, errors handled |
-| Security | No XSS, no injection |
-| UX | Matches design system |
-| Documentation | Code commented |
+| Tests pass | `npm run test` — 0 failures |
+| Lint clean | `npm run lint` — 0 warnings |
+| All ACs met | Every AC has a passing test |
+| Responsive | 320/375/768/1024/1440px |
+| Code review | No dead code, hardcoded values, boundary errors |
+| Performance | Lighthouse > 90 *(production)* |
+| Accessibility | WCAG 2.1 AA *(production)* |
+| Cross-browser | Chrome, Safari, Firefox *(production)* |
+| Build succeeds | `npm run build` — 0 errors *(production)* |
+| Security scan | XSS, injection, secrets *(production)* |
 
 ---
 
@@ -171,7 +171,8 @@ When user says any of these, generate docs and mark complete:
 | Command | When to Use |
 |---------|-------------|
 | `/spec` | Starting a new feature — creates spec in `docs/specs/` |
-| `/implement` | After spec is approved — TDD cycle |
+| `/test-plan` | After spec is approved — produces test matrix in the spec file |
+| `/implement` | After test plan is approved — TDD cycle |
 | `/review` | After implementation — runs all quality gates |
 | `/ship` | After review passes — commit + PR |
 | `/bug` | When a bug is found — root cause + regression test |

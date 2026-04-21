@@ -192,16 +192,21 @@ AND see welcome message with their name
 
 ### 10 Quality Gates
 
-1. **Code Quality** - Linting, no warnings
-2. **Functionality** - All criteria met
-3. **Mobile Responsive** - 320px to 1440px
-4. **Performance** - Lighthouse > 90
-5. **Accessibility** - WCAG 2.1 AA
-6. **Browser Testing** - Chrome, Safari, Firefox
-7. **Integration** - APIs work, errors handled
-8. **Security** - No XSS, no injection
-9. **UX Consistency** - Matches design system
-10. **Documentation** - Code commented
+**Prototype Mode (5 essential):**
+1. **Tests pass** — `npm run test`, 0 failures
+2. **Lint clean** — `npm run lint`, 0 warnings
+3. **All ACs met** — every AC has a passing test
+4. **Responsive** — 320px → 1440px
+5. **Code review** — diff reviewed, no dead code / boundary issues
+
+**Production Mode (adds 5):**
+6. **Performance** — Lighthouse > 90
+7. **Accessibility** — WCAG 2.1 AA
+8. **Cross-browser** — Chrome, Safari, Firefox
+9. **Build succeeds** — `npm run build`, 0 errors
+10. **Security scan** — no XSS, injection, or exposed secrets
+
+Authoritative definition: `.claude/skills/review/SKILL.md`.
 
 ### Bug Post-Mortems with 5 Whys
 

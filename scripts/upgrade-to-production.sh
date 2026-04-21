@@ -184,20 +184,22 @@ These gates were skipped in prototype mode and now need attention:
 - [ ] Check color contrast
 - [ ] Target: WCAG 2.1 AA compliance
 
-#### Browser Testing
+#### Cross-browser
 - [ ] Test in Chrome
 - [ ] Test in Safari
 - [ ] Test in Firefox
 - [ ] Test in Chrome Mobile
 - [ ] Test in Safari Mobile
 
-#### Integration
-- [ ] Set up real API endpoints
+#### Build succeeds
+- [ ] `npm run build` exits 0
+- [ ] No type errors
+- [ ] Set up real API endpoints (replace mocks)
 - [ ] Implement proper error handling
 - [ ] Add loading states
 - [ ] Handle network failures gracefully
 
-#### Security
+#### Security scan
 - [ ] Move secrets to environment variables
 - [ ] Sanitize all user inputs
 - [ ] Implement CSRF protection (if applicable)

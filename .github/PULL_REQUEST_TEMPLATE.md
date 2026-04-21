@@ -26,25 +26,36 @@
 
 ## Quality Gates Checklist
 
-### Code Quality
-- [ ] Linting passes with zero warnings
+Gate names match `.claude/skills/review/SKILL.md` (the authoritative definition).
+
+### Prototype Mode (5 essential — always required)
+
+### Tests pass
+- [ ] `npm run test` — 0 failures
+
+### Lint clean
+- [ ] `npm run lint` — 0 warnings
 - [ ] TypeScript strict mode (no `any`)
 - [ ] No `console.log` in production code
-- [ ] Proper error handling
 
-### Functionality
-- [ ] All acceptance criteria met
-- [ ] Happy path works
-- [ ] Edge cases handled
-- [ ] Error states display properly
+### All ACs met
+- [ ] Every AC has a passing test
+- [ ] Traceability matrix complete (all ✅)
 
-### Mobile Responsive *(skip if N/A)*
+### Responsive *(skip if N/A)*
 - [ ] Tested at 320px
 - [ ] Tested at 375px
 - [ ] Tested at 768px
 - [ ] Tested at 1024px
 - [ ] Tested at 1440px
-- [ ] Touch targets 44x44px minimum
+- [ ] Touch targets ≥ 44x44px
+
+### Code review
+- [ ] No dead code, hardcoded values, or boundary errors
+- [ ] Error handling at system boundaries only
+- [ ] Naming is clear; complex code has a one-line *why* comment
+
+### Production Mode (adds 5 — skip for prototype)
 
 ### Performance
 - [ ] Lighthouse score > 90
@@ -53,28 +64,24 @@
 
 ### Accessibility *(skip if N/A)*
 - [ ] Keyboard navigation works
-- [ ] Screen reader compatible
-- [ ] Color contrast meets requirements
+- [ ] Screen reader labels present
+- [ ] Color contrast passes
 
-### Browser Testing *(skip if N/A)*
+### Cross-browser *(skip if N/A)*
 - [ ] Chrome
 - [ ] Safari
 - [ ] Firefox
 
-### Integration
-- [ ] API calls work correctly
-- [ ] Error handling for failures
-- [ ] Loading states display
+### Build succeeds
+- [ ] `npm run build` — 0 errors
+- [ ] API calls wired to real endpoints
+- [ ] Loading and error states display
 
-### Security
+### Security scan
 - [ ] No XSS vulnerabilities
-- [ ] Secrets in env vars
+- [ ] Secrets only in env vars
 - [ ] Input sanitized
-
-### Documentation
-- [ ] Spec is up to date
-- [ ] Traceability matrix complete (all ✅)
-- [ ] Complex code commented
+- [ ] Auth checks on protected routes
 
 ## Traceability Matrix
 
