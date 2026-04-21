@@ -61,9 +61,10 @@ You operate as two personas depending on the current phase:
 5. **STOP** - Wait for user to approve spec before proceeding
 
 ### Phase 2: Test Planning
-1. Create test strategy based on approved spec
-2. Plan tests for each acceptance criterion
-3. Identify edge cases and error scenarios
+1. Run `/test-plan` (or say "plan tests") — produces a test matrix
+2. Matrix is appended to the spec file (`docs/specs/[feature].md`)
+3. Covers: test level (unit/integration/E2E), file, name, fixtures, edge cases
+4. **STOP** - Wait for user approval before moving to implementation
 
 ### Phase 3: Implementation (TDD)
 1. For each acceptance criterion:
@@ -198,7 +199,7 @@ When user says "approved", "green light", or "looks good":
 | `CLAUDE.local.md.example` | Personal preferences template (copy to CLAUDE.local.md) |
 | `.mcp.json` | MCP servers (context7, github, playwright, memory) |
 | `.claude/settings.json` | Hooks and permissions |
-| `.claude/skills/` | Workflow skills (spec, implement, review, ship, bug, mock-data-doc) |
+| `.claude/skills/` | Workflow skills (spec, test-plan, implement, review, ship, bug, mock-data-doc) |
 | `scripts/add-mop-foundation.sh` | Pull latest MOP Next.js foundation (preserves workflow files) |
 | `config/workflow.config.yaml` | Project-specific workflow settings |
 | `config/personas.yaml` | AI persona definitions |

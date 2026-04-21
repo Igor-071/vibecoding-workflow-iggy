@@ -226,46 +226,68 @@ Every spec must include a traceability matrix:
 
 ## Quality Gates
 
-### Gate 1: Code Quality
-- [ ] Linting passes with zero warnings
+> **The authoritative definition lives in `.claude/skills/review/SKILL.md`.**
+> This section expands each gate with a detailed checklist. If these ever
+> diverge from the skill, the skill wins — it is what Claude executes.
+
+### Prototype Mode (5 essential)
+
+### Gate 1: Tests pass
+- [ ] `npm run test` exits 0
+- [ ] 0 failing tests
+- [ ] Coverage meets project threshold (if configured)
+
+### Gate 2: Lint clean
+- [ ] `npm run lint` exits 0
+- [ ] 0 warnings
 - [ ] TypeScript strict mode (no `any`)
-- [ ] No `console.log` in production code
-- [ ] Proper error handling throughout
+- [ ] No `console.log` in production code paths
 - [ ] No commented-out code
 
-### Gate 2: Functionality
-- [ ] All acceptance criteria met
-- [ ] Happy path works correctly
-- [ ] Edge cases handled
-- [ ] Error states display properly
+### Gate 3: All ACs met
+- [ ] Every AC in the spec maps to a passing test
+- [ ] Traceability matrix complete
+- [ ] No AC marked ⏳ or ❌
+- [ ] Happy path and edge cases both covered
 
-### Gate 3: Mobile Responsive
+### Gate 4: Responsive
 *(Skip for CLI/backend projects)*
-- [ ] Works at 320px (iPhone SE)
-- [ ] Works at 375px (iPhone standard)
-- [ ] Works at 768px (Tablet)
-- [ ] Works at 1024px (Desktop)
-- [ ] Works at 1440px (Large desktop)
-- [ ] Touch targets minimum 44x44px
-- [ ] Text minimum 16px on mobile
+- [ ] 320px (iPhone SE)
+- [ ] 375px (iPhone standard)
+- [ ] 768px (Tablet)
+- [ ] 1024px (Desktop)
+- [ ] 1440px (Large desktop)
+- [ ] Touch targets ≥ 44x44px
+- [ ] Body text ≥ 16px on mobile
 
-### Gate 4: Performance
-- [ ] Lighthouse score > 90
+### Gate 5: Code review
+- [ ] No dead code or unreachable branches
+- [ ] No hardcoded values that should be config
+- [ ] Error handling at system boundaries only
+- [ ] No off-by-one or boundary errors
+- [ ] Naming is clear; no abbreviations
+- [ ] Matches design system / consistent spacing (if UI)
+- [ ] Complex code has a one-line comment explaining *why*
+
+### Production Mode (adds 5)
+
+### Gate 6: Performance
+- [ ] Lighthouse > 90
 - [ ] First Contentful Paint < 1.5s
 - [ ] Time to Interactive < 3s
 - [ ] No Cumulative Layout Shift
 - [ ] Images optimized
 
-### Gate 5: Accessibility
+### Gate 7: Accessibility
 *(Skip for CLI/backend projects)*
-- [ ] WCAG 2.1 AA compliant
-- [ ] Keyboard navigation works
-- [ ] Screen reader compatible
-- [ ] Proper contrast ratios
+- [ ] WCAG 2.1 AA (axe-core or Lighthouse a11y)
+- [ ] Keyboard navigation works end-to-end
+- [ ] Screen reader labels present
+- [ ] Color contrast passes
 - [ ] Alt text for images
-- [ ] Semantic HTML used
+- [ ] Semantic HTML
 
-### Gate 6: Browser Testing
+### Gate 8: Cross-browser
 *(Skip for non-web projects)*
 - [ ] Chrome (latest)
 - [ ] Safari (latest)
@@ -273,32 +295,19 @@ Every spec must include a traceability matrix:
 - [ ] Chrome Mobile
 - [ ] Safari Mobile
 
-### Gate 7: Integration Testing
-- [ ] API calls work correctly
-- [ ] Error handling for API failures
-- [ ] Loading states display
-- [ ] Data flows correctly between components
+### Gate 9: Build succeeds
+- [ ] `npm run build` exits 0
+- [ ] No type errors
+- [ ] No broken imports
+- [ ] API calls wired to real endpoints (not mocks)
+- [ ] Loading and error states display correctly
 
-### Gate 8: Security Review
-- [ ] No XSS vulnerabilities
-- [ ] No SQL injection points
-- [ ] Secrets in environment variables
-- [ ] Input sanitization in place
-- [ ] Auth checks where needed
-
-### Gate 9: UX Consistency
-*(Skip for CLI/backend projects)*
-- [ ] Matches design system
-- [ ] Consistent spacing
-- [ ] Proper animations/transitions
-- [ ] Clear error messages
-- [ ] Logical tab order
-
-### Gate 10: Documentation
-- [ ] Complex code has comments
-- [ ] Spec is up to date
-- [ ] Traceability matrix complete
-- [ ] Reusable components documented
+### Gate 10: Security scan
+- [ ] No XSS vectors (`dangerouslySetInnerHTML` reviewed)
+- [ ] No SQL/command injection points
+- [ ] Secrets only in environment variables
+- [ ] Input sanitization at boundaries
+- [ ] Auth checks on protected routes
 
 ---
 
@@ -322,16 +331,16 @@ When presenting completed feature to user:
 ### Quality Gates
 | Gate | Status |
 |------|--------|
-| Code Quality | PASSED |
-| Functionality | PASSED |
-| Mobile Responsive | PASSED |
+| Tests pass | PASSED |
+| Lint clean | PASSED |
+| All ACs met | PASSED |
+| Responsive | PASSED |
+| Code review | PASSED |
 | Performance | PASSED |
 | Accessibility | PASSED |
-| Browser Testing | PASSED |
-| Integration | PASSED |
-| Security | PASSED |
-| UX Consistency | PASSED |
-| Documentation | PASSED |
+| Cross-browser | PASSED |
+| Build succeeds | PASSED |
+| Security scan | PASSED |
 
 ### How to Test
 1. [Step-by-step testing instructions]
@@ -549,7 +558,8 @@ Skills are slash commands that encode each workflow phase. Invoke them in Claude
 | Skill | Command | Activates When |
 |-------|---------|----------------|
 | Spec | `/spec` | User asks to build a feature |
-| Implement | `/implement` | Spec is approved |
+| Test Plan | `/test-plan` | Spec is approved, before implementation |
+| Implement | `/implement` | Test plan is approved |
 | Review | `/review` | Implementation is complete |
 | Ship | `/ship` | Review passes, ready to commit/PR |
 | Bug | `/bug` | A bug is found or reported |

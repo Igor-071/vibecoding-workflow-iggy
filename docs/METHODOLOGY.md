@@ -28,18 +28,18 @@ This is the most important decision because it determines the entire workflow ri
 │ Quality Gates: 5 essential gates only                                       │
 │                                                                             │
 │ Gates Used:                                                                 │
-│   ✓ Code Quality      - Linting, no warnings                               │
-│   ✓ Functionality     - Acceptance criteria met                            │
-│   ✓ Mobile Responsive - Works at all breakpoints                           │
-│   ✓ UX Consistency    - Looks good, consistent design                      │
-│   ✓ Documentation     - Specs updated                                      │
+│   ✓ Tests pass        - npm run test (0 failures)                          │
+│   ✓ Lint clean        - npm run lint (0 warnings)                          │
+│   ✓ All ACs met       - Every AC has a passing test                        │
+│   ✓ Responsive        - Works at 320/375/768/1024/1440px                   │
+│   ✓ Code review       - Diff reviewed, no dead code or boundary issues     │
 │                                                                             │
 │ Gates Skipped:                                                              │
-│   ○ Performance       - Lighthouse, load times                             │
-│   ○ Accessibility     - WCAG compliance                                    │
-│   ○ Browser Testing   - Cross-browser                                      │
-│   ○ Integration       - API error handling                                 │
-│   ○ Security          - XSS, injection checks                              │
+│   ○ Performance       - Lighthouse > 90, FCP < 1.5s                        │
+│   ○ Accessibility     - WCAG 2.1 AA                                        │
+│   ○ Cross-browser     - Chrome, Safari, Firefox                            │
+│   ○ Build succeeds    - npm run build (0 errors)                           │
+│   ○ Security scan     - XSS, injection, secrets check                      │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -63,16 +63,16 @@ This is the most important decision because it determines the entire workflow ri
 │ Quality Gates: All 10 gates mandatory                                       │
 │                                                                             │
 │ All Gates Required:                                                         │
-│   ✓ Code Quality      - Linting, no warnings                               │
-│   ✓ Functionality     - Acceptance criteria met                            │
-│   ✓ Mobile Responsive - Works at all breakpoints                           │
-│   ✓ UX Consistency    - Matches design system                              │
-│   ✓ Documentation     - Complete documentation                             │
-│   ✓ Performance       - Lighthouse > 90                                    │
-│   ✓ Accessibility     - WCAG 2.1 AA compliant                              │
-│   ✓ Browser Testing   - Chrome, Safari, Firefox                            │
-│   ✓ Integration       - APIs, error handling                               │
-│   ✓ Security          - No vulnerabilities                                 │
+│   ✓ Tests pass        - npm run test (0 failures)                          │
+│   ✓ Lint clean        - npm run lint (0 warnings)                          │
+│   ✓ All ACs met       - Every AC has a passing test                        │
+│   ✓ Responsive        - Works at 320/375/768/1024/1440px                   │
+│   ✓ Code review       - Diff reviewed, no dead code or boundary issues     │
+│   ✓ Performance       - Lighthouse > 90, FCP < 1.5s                        │
+│   ✓ Accessibility     - WCAG 2.1 AA                                        │
+│   ✓ Cross-browser     - Chrome, Safari, Firefox                            │
+│   ✓ Build succeeds    - npm run build (0 errors)                           │
+│   ✓ Security scan     - XSS, injection, secrets check                      │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -132,16 +132,16 @@ When upgrading, you'll need to satisfy these additional gates:
    - Test with screen reader
    - Check color contrast
 
-3. **Browser Testing**
+3. **Cross-browser**
    - Test Chrome, Safari, Firefox
    - Test mobile browsers
 
-4. **Integration**
-   - Replace mock data with real APIs
-   - Implement proper error handling
-   - Add loading states
+4. **Build succeeds**
+   - `npm run build` exits 0
+   - Replace mock data with real APIs as part of this transition
+   - Ensure error handling and loading states are in place
 
-5. **Security**
+5. **Security scan**
    - Move secrets to env vars
    - Sanitize all inputs
    - Add authentication/authorization
@@ -248,16 +248,18 @@ BLUE   → Refactor while keeping tests green (safe improvement)
 
 **Solution:** 10 mandatory quality gates that MUST pass before user testing:
 
-1. Code Quality
-2. Functionality
-3. Mobile Responsiveness
-4. Performance
-5. Accessibility
-6. Browser Testing
-7. Integration
-8. Security
-9. UX Consistency
-10. Documentation
+1. Tests pass
+2. Lint clean
+3. All ACs met
+4. Responsive
+5. Code review
+6. Performance
+7. Accessibility
+8. Cross-browser
+9. Build succeeds
+10. Security scan
+
+(Authoritative definition: `.claude/skills/review/SKILL.md`.)
 
 **Benefits:**
 - Consistent quality standard
