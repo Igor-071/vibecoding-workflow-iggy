@@ -43,6 +43,8 @@ BLUE  → Refactor, keep tests passing
 
 ## Quality Gates Checklist
 
+**Prototype Mode (always required):**
+
 | Gate | Check |
 |------|-------|
 | Tests pass | `npm run test` — 0 failures |
@@ -50,11 +52,16 @@ BLUE  → Refactor, keep tests passing
 | All ACs met | Every AC has a passing test |
 | Responsive | 320/375/768/1024/1440px |
 | Code review | No dead code, hardcoded values, boundary errors |
-| Performance | Lighthouse > 90 *(production)* |
-| Accessibility | WCAG 2.1 AA *(production)* |
-| Cross-browser | Chrome, Safari, Firefox *(production)* |
-| Build succeeds | `npm run build` — 0 errors *(production)* |
-| Security scan | XSS, injection, secrets *(production)* |
+
+**Production Mode (adds 5 more):**
+
+| Gate | Check |
+|------|-------|
+| Performance | Lighthouse > 90 |
+| Accessibility | WCAG 2.1 AA |
+| Cross-browser | Chrome, Safari, Firefox |
+| Build succeeds | `npm run build` — 0 errors |
+| Security scan | XSS, injection, secrets in env vars |
 
 ---
 
