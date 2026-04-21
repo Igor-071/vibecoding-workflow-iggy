@@ -148,6 +148,67 @@ When upgrading, you'll need to satisfy these additional gates:
 
 ---
 
+## Prototype-First Development
+
+### The MOP Next.js Foundation
+
+Every new Next.js project starts from the same opinionated foundation at
+[`ministryofprogramming/mop-foundation-nextjs`](https://github.com/ministryofprogramming/mop-foundation-nextjs).
+
+**Why pull, not copy?**
+
+If you copy the foundation once, your project drifts from improvements over
+time. Pulling fresh via `degit` means every new project gets the latest
+routing conventions, config, tooling, and components — without merge conflicts,
+because your code lives on top of it.
+
+```bash
+./scripts/add-mop-foundation.sh   # run once at setup
+./scripts/add-mop-foundation.sh   # re-run any time to pull updates
+```
+
+Your workflow files (CLAUDE.md, .claude/, config/, docs/, scripts/) are
+**never overwritten**. Only foundation code (app/, components/, package.json,
+tsconfig.json, next.config.*) is updated.
+
+`init-project.sh` will prompt you to scaffold automatically when you select
+Next.js as your frontend framework.
+
+### Working with Mock Data
+
+Vibecoding prototypes are **frontend-only by design**. Real backend APIs are
+replaced with:
+
+- In-memory arrays and objects
+- Mock functions (`getUsers`, `createOrder`, etc.)
+- MSW (Mock Service Worker) handlers
+- `localStorage` for simulated persistence
+
+This lets the entire UI be built and validated before a single API endpoint
+exists. Speed is the point — backend work happens only after the prototype
+is approved.
+
+### Backend Handoff with `/mock-data-doc`
+
+When a prototype is approved, the backend team needs to know **exactly** what
+to build. They shouldn't have to read through component files to reverse-engineer
+the data model.
+
+Run `/mock-data-doc` (or say **"generate mock data doc"**) in Claude Code.
+Claude:
+
+1. Scans all mock data sources in the codebase
+2. Extracts entity shapes, operations, relationships, and constraints
+3. Identifies prototype-only assumptions (no auth, hardcoded admins, etc.)
+4. Writes `docs/MOCKED_DATA_STRUCTURE.md` — a complete handoff document
+
+The backend team gets a clear spec for every entity, every endpoint, every
+relationship, and every assumption they must replace in production.
+
+Commit the file to `docs/` before handing off.
+
+---
+
 ## The "Why" Behind Our Approach
 
 ### Why Spec-Driven Development?
