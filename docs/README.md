@@ -10,7 +10,7 @@ Welcome to the project documentation. This folder contains all workflow document
 |----------|---------|
 | [METHODOLOGY.md](./METHODOLOGY.md) | Core philosophy and principles (the "why") |
 | [WORKFLOW_RULES.md](./WORKFLOW_RULES.md) | Complete workflow reference (the "how") |
-| [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) | Daily cheat sheet |
+| [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) | Daily cheat sheet — skills, gates, commit format |
 
 ---
 
@@ -92,22 +92,48 @@ docs/bugs/BUG-[ID]-[name].md
 
 ---
 
+## Skills (Slash Commands)
+
+Type these in Claude Code — no manual file copying needed:
+
+| Command | When |
+|---------|------|
+| `/spec` | Starting a new feature |
+| `/test-plan` | After spec is approved |
+| `/implement` | After test plan is approved |
+| `/review` | After implementation |
+| `/ship` | After review passes |
+| `/bug` | When a bug is found |
+| `/mock-data-doc` | When prototype is done — generates backend handoff doc |
+
+---
+
+## MOP Next.js Foundation
+
+```bash
+./scripts/add-mop-foundation.sh         # pull latest
+./scripts/add-mop-foundation.sh v1.2.0  # pin to release
+```
+
+Pulls the latest [MOP Next.js foundation](https://github.com/ministryofprogramming/mop-foundation-nextjs)
+without touching your workflow files. Re-run any time to update.
+
+---
+
 ## Getting Started
 
 1. **New Feature?**
-   - Copy [SPEC_TEMPLATE.md](./SPEC_TEMPLATE.md) to `specs/[feature-name].md`
-   - Fill in all sections
-   - Get user approval before coding
+   - Type `/spec` in Claude Code — it creates `specs/[feature-name].md` for you
+   - Get approval, then `/test-plan`, then `/implement`
 
 2. **Implementation Done?**
-   - Copy [reviews/REVIEW_TEMPLATE.md](./reviews/REVIEW_TEMPLATE.md) to `reviews/[feature-name].md`
-   - Verify all quality gates
-   - Present to user
+   - Type `/review` — Claude runs all quality gates and creates `reviews/[feature-name].md`
 
 3. **Bug Found?**
-   - Copy [bugs/BUG_POSTMORTEM_TEMPLATE.md](./bugs/BUG_POSTMORTEM_TEMPLATE.md) to `bugs/BUG-[ID]-[name].md`
-   - Complete 5 Whys analysis
-   - Write test before fixing
+   - Type `/bug` — Claude runs 5 Whys and creates `bugs/BUG-[ID]-[name].md`
+
+4. **Prototype approved, handing off to backend?**
+   - Type `/mock-data-doc` — Claude writes `MOCKED_DATA_STRUCTURE.md` for the backend team
 
 ---
 
