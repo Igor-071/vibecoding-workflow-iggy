@@ -161,3 +161,70 @@ When user says any of these, generate docs and mark complete:
 - Stop & Wait for approval
 - Generate docs on approval
 - Post-mortem for bugs
+
+---
+
+## Tooling
+
+### Skills (Slash Commands)
+
+| Command | When to Use |
+|---------|-------------|
+| `/spec` | Starting a new feature — creates spec in `docs/specs/` |
+| `/implement` | After spec is approved — TDD cycle |
+| `/review` | After implementation — runs all quality gates |
+| `/ship` | After review passes — commit + PR |
+| `/bug` | When a bug is found — root cause + regression test |
+| `/mock-data-doc` | When a prototype is done — generates `docs/MOCKED_DATA_STRUCTURE.md` for backend handoff |
+
+Skills live in `.claude/skills/[name]/SKILL.md`.
+
+### Hooks (Automatic)
+
+Configured in `.claude/settings.json` — no action needed:
+
+| Hook | Trigger | What it does |
+|------|---------|--------------|
+| Auto-lint | Every Write/Edit on `.js/.ts/.tsx` | Runs `eslint --fix` on the file |
+| Pre-commit | Every `git commit` | Runs `npm run lint && npm run test` |
+
+### MCP Servers
+
+Configured in `.mcp.json`:
+
+| Server | Purpose | Activation |
+|--------|---------|------------|
+| `context7` | Live framework/library docs | Add `use context7` to any prompt |
+| `playwright` | Browser automation, E2E, responsive | Available automatically |
+| `github` | Issues, PRs, code search | Requires `GITHUB_TOKEN` env var |
+| `sequential-thinking` | Structured architecture reasoning | Available automatically |
+| `memory` | Persistent knowledge across sessions | Available automatically |
+
+### use context7
+
+Add `use context7` to any prompt involving a framework or library:
+
+```
+"Build a login form with React Hook Form, use context7"
+"Configure Vite for SSR, use context7"
+```
+
+### MOP Next.js Foundation
+
+New Next.js projects pull the latest foundation from
+`github.com/ministryofprogramming/mop-foundation-nextjs` via `degit` (not
+vendored). Workflow files are preserved.
+
+```bash
+./scripts/add-mop-foundation.sh         # pull latest main
+./scripts/add-mop-foundation.sh v1.2.0  # pin to tag/branch/commit
+```
+
+Re-run any time to update.
+
+### Personal Preferences
+
+```bash
+cp CLAUDE.local.md.example CLAUDE.local.md
+# Edit CLAUDE.local.md — it is gitignored
+```

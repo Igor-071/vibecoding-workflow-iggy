@@ -57,6 +57,9 @@ Thumbs.db
 secrets.json
 credentials.json
 
+# Personal workflow preferences (copy from CLAUDE.local.md.example)
+CLAUDE.local.md
+
 # -----------------------------------------------------------------------------
 # Testing
 # -----------------------------------------------------------------------------

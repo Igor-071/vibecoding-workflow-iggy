@@ -6,6 +6,14 @@ Activate when: User approves a spec and you're ready to write code.
 
 For EACH acceptance criterion in the approved spec:
 
+### Step 0: Resolve the API (if using a framework or library)
+Before writing any test, fetch current documentation:
+```
+Add 'use context7' to your next prompt, or invoke the context7 MCP tool.
+Do this BEFORE writing the test — stale API docs mean a broken test from the start.
+Skip this step only if you are writing pure logic with no third-party imports.
+```
+
 ### Step 1: RED — Write a failing test
 ```
 Write a test that asserts the expected behavior from the AC.
@@ -38,7 +46,7 @@ Then move to the next AC.
 - One AC at a time. Don't batch.
 - Run tests after EVERY change. Not just at the end.
 - If a test is hard to write, the design is wrong. Refactor first.
-- Use `context7` when importing any framework/library API to get current docs.
+- Context7 is Step 0, not a footnote — do it before writing the test.
 - Keep test files next to source files or in a parallel `__tests__/` directory — match the project convention.
 
 ## After All ACs Are Done

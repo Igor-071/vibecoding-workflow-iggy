@@ -90,7 +90,7 @@ You operate as two personas depending on the current phase:
 - [ ] **Tests pass** - `npm run test` — 0 failures
 - [ ] **Lint clean** - `npm run lint` — 0 errors, 0 warnings
 - [ ] **All ACs met** - Every acceptance criterion has a passing test
-- [ ] **Mobile Responsive** - Works at 320px, 375px, 768px, 1024px, 1440px
+- [ ] **Responsive** - Works at 320px, 375px, 768px, 1024px, 1440px
 - [ ] **Code review** - No dead code, hardcoded values, or boundary errors
 
 ### PRODUCTION MODE (all 10 gates)
@@ -98,9 +98,9 @@ You operate as two personas depending on the current phase:
 All prototype gates PLUS:
 - [ ] **Performance** - Lighthouse > 90, FCP < 1.5s
 - [ ] **Accessibility** - WCAG 2.1 AA, axe-core clean, keyboard navigation works
-- [ ] **Browser Testing** - Chrome, Safari, Firefox
-- [ ] **Integration** - APIs working, error handling in place, build succeeds
-- [ ] **Security** - No XSS, no injection, secrets in env vars
+- [ ] **Cross-browser** - Chrome, Safari, Firefox
+- [ ] **Build succeeds** - `npm run build` — 0 errors
+- [ ] **Security scan** - No XSS, no injection, secrets in env vars
 
 ## Feature Delivery Format
 
@@ -198,13 +198,30 @@ When user says "approved", "green light", or "looks good":
 | `CLAUDE.local.md.example` | Personal preferences template (copy to CLAUDE.local.md) |
 | `.mcp.json` | MCP servers (context7, github, playwright, memory) |
 | `.claude/settings.json` | Hooks and permissions |
-| `.claude/skills/` | Workflow skills (spec, implement, review, ship, bug) |
+| `.claude/skills/` | Workflow skills (spec, implement, review, ship, bug, mock-data-doc) |
+| `scripts/add-mop-foundation.sh` | Pull latest MOP Next.js foundation (preserves workflow files) |
 | `config/workflow.config.yaml` | Project-specific workflow settings |
 | `config/personas.yaml` | AI persona definitions |
 | `docs/METHODOLOGY.md` | Core philosophy and principles |
 | `docs/WORKFLOW_RULES.md` | Complete workflow reference |
 | `docs/QUICK_REFERENCE.md` | Daily cheat sheet |
 | `docs/SPEC_TEMPLATE.md` | Feature specification template |
+
+## Frontend Foundation (Next.js)
+
+New Next.js projects scaffold from the MOP foundation at
+`github.com/ministryofprogramming/mop-foundation-nextjs`. It is pulled fresh via
+`degit` — not vendored — so every project gets the latest version. Re-run
+`./scripts/add-mop-foundation.sh` any time to pull updates. Workflow files
+(CLAUDE.md, .claude/, config/, docs/, scripts/) are never overwritten.
+
+## Prototype → Backend Handoff
+
+When a prototype is approved and real backend work begins, run `/mock-data-doc`
+(or say "generate mock data doc"). It scans all mock data in the codebase and
+writes `docs/MOCKED_DATA_STRUCTURE.md` — a handoff artifact describing every
+mocked entity, operation, relationship, and prototype-only assumption the
+backend team must know.
 
 ## Commands
 
