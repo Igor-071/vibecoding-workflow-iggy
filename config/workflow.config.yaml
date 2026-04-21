@@ -1,5 +1,18 @@
 # Vibecoding Workflow Configuration
 # Customize this file for your project
+#
+# =============================================================================
+# IMPORTANT: Claude does NOT read YAML files.
+# =============================================================================
+# This file is DOCUMENTATION ONLY — it does not configure Claude's behavior.
+# Actual behavior is controlled by:
+#   - CLAUDE.md             (mode, quality gates, workflow instructions)
+#   - .claude/settings.json (hooks, permissions)
+#   - .claude/skills/       (per-phase execution)
+#
+# Changing values here has NO effect unless you also update CLAUDE.md.
+# Use scripts/init-project.sh to initialize, or edit CLAUDE.md directly.
+# =============================================================================
 
 # =============================================================================
 # FIRST DECISION: PROTOTYPE OR PRODUCTION?
@@ -92,16 +105,16 @@ workflow:
 # ┌─────────────────────────────────────────────────────────────────────────────┐
 # │ Gate                │ Prototype │ Production │ Description                  │
 # ├─────────────────────┼───────────┼────────────┼──────────────────────────────┤
-# │ * Code Quality      │ YES       │ YES        │ Linting, no warnings         │
-# │ * Functionality     │ YES       │ YES        │ Acceptance criteria met      │
-# │ * Mobile Responsive │ YES       │ YES        │ Works at all breakpoints     │
-# │ * UX Consistency    │ YES       │ YES        │ Looks good, consistent       │
-# │ * Documentation     │ YES       │ YES        │ Specs updated                │
+# │ * Tests pass        │ YES       │ YES        │ npm run test — 0 failures    │
+# │ * Lint clean        │ YES       │ YES        │ npm run lint — 0 errors      │
+# │ * All ACs met       │ YES       │ YES        │ Every AC has a passing test  │
+# │ * Responsive        │ YES       │ YES        │ Works at all breakpoints     │
+# │ * Code review       │ YES       │ YES        │ Diff review, no issues       │
 # │   Performance       │ NO        │ YES        │ Lighthouse > 90              │
 # │   Accessibility     │ NO        │ YES        │ WCAG 2.1 AA                  │
-# │   Browser Testing   │ NO        │ YES        │ Chrome, Safari, Firefox      │
-# │   Integration       │ NO        │ YES        │ APIs, error handling         │
-# │   Security          │ NO        │ YES        │ XSS, injection checks        │
+# │   Cross-browser     │ NO        │ YES        │ Chrome, Safari, Firefox      │
+# │   Build succeeds    │ NO        │ YES        │ npm run build — 0 errors     │
+# │   Security scan     │ NO        │ YES        │ XSS, injection checks        │
 # └─────────────────────┴───────────┴────────────┴──────────────────────────────┘
 
 quality_gates:
@@ -125,11 +138,13 @@ quality_gates:
     enabled: true
     prototype: true
     description: "Matches design system, proper spacing"
+    # NOTE: Covered by the 'Code review' gate in .claude/skills/review/SKILL.md
 
   documentation:
     enabled: true
     prototype: true
     description: "Code commented where needed, specs updated"
+    # NOTE: Covered by the 'Code review' gate in .claude/skills/review/SKILL.md
 
   # PRODUCTION-ONLY GATES (skip in Prototype mode)
   performance:
@@ -145,17 +160,17 @@ quality_gates:
     prototype: false                        # Skip in prototype mode
     description: "WCAG 2.1 AA compliant, keyboard navigation"
 
-  browser_testing:
+  cross_browser:
     enabled: true
     prototype: false                        # Skip in prototype mode
     description: "Chrome, Safari, Firefox tested"
 
-  integration:
+  build_succeeds:
     enabled: true
     prototype: false                        # Skip in prototype mode
-    description: "APIs working, error handling, data flow correct"
+    description: "npm run build — 0 errors"
 
-  security:
+  security_scan:
     enabled: true
     prototype: false                        # Skip in prototype mode
     description: "No XSS, no injection, env vars for secrets"

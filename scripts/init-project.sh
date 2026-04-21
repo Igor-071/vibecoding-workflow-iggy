@@ -103,26 +103,38 @@ echo ""
 FRONTEND_FRAMEWORK="null"
 if [ "$PROJECT_TYPE" = "web" ] || [ "$PROJECT_TYPE" = "mobile" ] || [ "$PROJECT_TYPE" = "fullstack" ]; then
     echo -e "${YELLOW}Step 4: Frontend Framework${NC}"
-    echo "  1) react     - React"
-    echo "  2) vue       - Vue.js"
-    echo "  3) svelte    - Svelte"
-    echo "  4) angular   - Angular"
-    echo "  5) vanilla   - Vanilla JS"
-    echo "  6) none      - No frontend"
-    read -p "Select frontend framework (1-6): " FE_CHOICE
+    echo "  1) nextjs    - Next.js (recommended — MOP foundation available)"
+    echo "  2) react     - React"
+    echo "  3) vue       - Vue.js"
+    echo "  4) svelte    - Svelte"
+    echo "  5) angular   - Angular"
+    echo "  6) vanilla   - Vanilla JS"
+    echo "  7) none      - No frontend"
+    read -p "Select frontend framework (1-7): " FE_CHOICE
 
     case $FE_CHOICE in
-        1) FRONTEND_FRAMEWORK="react" ;;
-        2) FRONTEND_FRAMEWORK="vue" ;;
-        3) FRONTEND_FRAMEWORK="svelte" ;;
-        4) FRONTEND_FRAMEWORK="angular" ;;
-        5) FRONTEND_FRAMEWORK="vanilla" ;;
-        6) FRONTEND_FRAMEWORK="null" ;;
-        *) FRONTEND_FRAMEWORK="react" ;;
+        1) FRONTEND_FRAMEWORK="nextjs" ;;
+        2) FRONTEND_FRAMEWORK="react" ;;
+        3) FRONTEND_FRAMEWORK="vue" ;;
+        4) FRONTEND_FRAMEWORK="svelte" ;;
+        5) FRONTEND_FRAMEWORK="angular" ;;
+        6) FRONTEND_FRAMEWORK="vanilla" ;;
+        7) FRONTEND_FRAMEWORK="null" ;;
+        *) FRONTEND_FRAMEWORK="nextjs" ;;
     esac
 
     echo -e "${GREEN}✓ Frontend: $FRONTEND_FRAMEWORK${NC}"
     echo ""
+
+    # Offer MOP Next.js foundation scaffold
+    SCAFFOLD_MOP="n"
+    if [ "$FRONTEND_FRAMEWORK" = "nextjs" ]; then
+        echo -e "${YELLOW}Scaffold from MOP Next.js foundation?${NC}"
+        echo "  Pulls latest from github.com/ministryofprogramming/mop-foundation-nextjs"
+        echo "  Workflow files (CLAUDE.md, .claude/, config/, docs/, scripts/) are preserved."
+        read -p "Scaffold now? (y/n): " SCAFFOLD_MOP
+        echo ""
+    fi
 fi
 
 # -----------------------------------------------------------------------------
@@ -206,6 +218,7 @@ if [ -f "CLAUDE.md" ]; then
         fi
     fi
     sed -i.bak "s/\[TECH_STACK\]/$TECH_STACK/g" CLAUDE.md
+    sed -i.bak "s/\[APPROACH\]/$APPROACH/g" CLAUDE.md
 
     rm -f CLAUDE.md.bak
     echo -e "${GREEN}✓ Updated CLAUDE.md${NC}"
@@ -221,6 +234,19 @@ if [ -f ".github/ISSUE_TEMPLATE/config.yml" ]; then
         sed -i.bak "s|\[OWNER\]/\[REPO\]|$REPO_PATH|g" .github/ISSUE_TEMPLATE/config.yml
         rm -f .github/ISSUE_TEMPLATE/config.yml.bak
         echo -e "${GREEN}✓ Updated .github/ISSUE_TEMPLATE/config.yml${NC}"
+    fi
+fi
+
+# -----------------------------------------------------------------------------
+# MOP Next.js Foundation Scaffold (optional)
+# -----------------------------------------------------------------------------
+if [ "${SCAFFOLD_MOP:-n}" = "y" ] || [ "${SCAFFOLD_MOP:-n}" = "Y" ]; then
+    echo ""
+    echo -e "${YELLOW}Scaffolding MOP Next.js foundation...${NC}"
+    if [ -x "./scripts/add-mop-foundation.sh" ]; then
+        ./scripts/add-mop-foundation.sh || echo -e "${YELLOW}Foundation scaffold failed — re-run ./scripts/add-mop-foundation.sh manually.${NC}"
+    else
+        echo -e "${YELLOW}scripts/add-mop-foundation.sh not executable — skipping. Run: chmod +x scripts/add-mop-foundation.sh && ./scripts/add-mop-foundation.sh${NC}"
     fi
 fi
 
@@ -256,18 +282,39 @@ echo ""
 
 if [ "$APPROACH" = "prototype" ]; then
     echo -e "${YELLOW}PROTOTYPE MODE - Quality Gates:${NC}"
-    echo "  ✓ Code Quality"
-    echo "  ✓ Functionality"
-    echo "  ✓ Mobile Responsive"
-    echo "  ✓ UX Consistency"
-    echo "  ✓ Documentation"
+    echo "  ✓ Tests pass"
+    echo "  ✓ Lint clean"
+    echo "  ✓ All ACs met"
+    echo "  ✓ Responsive"
+    echo "  ✓ Code review"
     echo ""
 fi
 
+echo -e "${YELLOW}Tooling setup:${NC}"
+echo "  Hooks     → .claude/settings.json (auto-lint + pre-commit already configured)"
+echo "  MCP       → .mcp.json (context7, playwright, sequential-thinking, memory work now)"
+echo "  GitHub MCP → requires: export GITHUB_TOKEN=ghp_your_token"
+echo ""
+echo -e "${YELLOW}Personal preferences:${NC}"
+echo "  cp CLAUDE.local.md.example CLAUDE.local.md"
+echo "  # Edit CLAUDE.local.md — it is gitignored"
+echo ""
 echo -e "${YELLOW}Next steps:${NC}"
-echo "  1. Review config/workflow.config.yaml"
-echo "  2. Customize CLAUDE.md with your commands"
-echo "  3. Edit .github/workflows/quality-check.yml for your stack"
-echo "  4. Start your first feature with a spec in docs/specs/"
+if [ "$FRONTEND_FRAMEWORK" = "nextjs" ] && [ "${SCAFFOLD_MOP:-n}" != "y" ] && [ "${SCAFFOLD_MOP:-n}" != "Y" ]; then
+    echo "  1. Scaffold foundation: ./scripts/add-mop-foundation.sh"
+    echo "  2. npm install && npm run dev"
+    echo "  3. Customize CLAUDE.md with your project's actual commands"
+    echo "  4. Start your first feature: type /spec in Claude Code"
+elif [ "${SCAFFOLD_MOP:-n}" = "y" ] || [ "${SCAFFOLD_MOP:-n}" = "Y" ]; then
+    echo "  1. npm install          # install foundation dependencies"
+    echo "  2. npm run dev          # start dev server"
+    echo "  3. Start your first feature: type /spec in Claude Code"
+    echo "  4. Re-pull latest foundation any time: ./scripts/add-mop-foundation.sh"
+else
+    echo "  1. Customize CLAUDE.md with your project's actual commands"
+    echo "  2. Set GITHUB_TOKEN if you want GitHub MCP (issues, PRs, code search)"
+    echo "  3. Start your first feature: create a spec in docs/specs/"
+    echo "     (or type /spec in Claude Code)"
+fi
 echo ""
 echo -e "${GREEN}Happy coding!${NC}"

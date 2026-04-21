@@ -537,3 +537,128 @@ When user says "approved", "green light", or "looks good":
 5. Generate documentation on feature approval
 6. Use Conventional Commits format
 7. Create post-mortems for bugs
+
+---
+
+## Tooling Reference
+
+### Skills
+
+Skills are slash commands that encode each workflow phase. Invoke them in Claude Code:
+
+| Skill | Command | Activates When |
+|-------|---------|----------------|
+| Spec | `/spec` | User asks to build a feature |
+| Implement | `/implement` | Spec is approved |
+| Review | `/review` | Implementation is complete |
+| Ship | `/ship` | Review passes, ready to commit/PR |
+| Bug | `/bug` | A bug is found or reported |
+| Mock Data Doc | `/mock-data-doc` | Prototype handoff — documents all mocked data for backend team |
+
+Skills live in `.claude/skills/[name]/SKILL.md`. Each file is the complete, self-contained instruction set for that phase. The **review skill is the authoritative definition of quality gates** — CLAUDE.md and docs reference its gate names.
+
+### Hooks
+
+Hooks run automatically, defined in `.claude/settings.json`:
+
+**PostToolUse — Auto-lint on write**
+- Fires after every `Write` or `Edit` on `.js/.ts/.tsx/.vue/.svelte` files
+- Runs: `npx eslint --fix <file>`
+- Effect: Files are always lint-clean immediately after being written
+
+**PreCommit — Gate before every commit**
+- Fires before every `git commit`
+- Runs: `npm run lint && npm run test`
+- Effect: A commit cannot land with failing lint or tests
+
+### MCP Servers
+
+MCP servers extend Claude's capabilities. Configured in `.mcp.json`.
+
+**context7** — Real-time documentation
+- Purpose: Fetches current docs for any framework or library
+- Usage: Add `use context7` to any prompt involving a framework API
+- No setup required
+
+**playwright** — Browser automation
+- Purpose: Responsive testing, visual verification, E2E checks
+- Used by the `/review` skill for the Responsive gate
+- No setup required
+
+**github** — GitHub integration
+- Purpose: Read/write issues, PRs, code search, Actions
+- Requires: `export GITHUB_TOKEN=ghp_your_personal_access_token`
+- Add to your shell profile (`~/.zshrc` or `~/.bashrc`) for persistence
+
+**sequential-thinking** — Structured reasoning
+- Purpose: Architecture decisions, complex debugging chains
+- No setup required
+
+**memory** — Cross-session knowledge
+- Purpose: Persists a knowledge graph across Claude Code sessions
+- Stored at: `.claude/memory.json`
+- No setup required
+
+### context7 Usage Pattern
+
+Add `use context7` whenever you are working with a framework or library API:
+
+```
+"Build a login form with React Hook Form, use context7"
+"Set up Drizzle ORM with Supabase, use context7"
+"Add a Playwright test for the auth flow, use context7"
+```
+
+### Frontend Foundation (Next.js)
+
+New Next.js projects scaffold from the MOP foundation at
+`github.com/ministryofprogramming/mop-foundation-nextjs`. The foundation is
+pulled fresh via `degit` — not vendored — so every project gets the latest
+version.
+
+```bash
+./scripts/add-mop-foundation.sh         # pull latest main
+./scripts/add-mop-foundation.sh v1.2.0  # pin to tag/branch/commit
+```
+
+The script overlays foundation files onto the project and preserves all
+workflow files: `CLAUDE.md`, `CLAUDE.local.md*`, `.claude/`, `.mcp.json`,
+`config/`, `docs/`, `scripts/`, and `.gitignore` (merged, not replaced).
+
+Re-run any time to pull foundation updates. Safe to re-run — existing
+foundation files are overwritten; workflow files are untouched.
+
+### Prototype → Backend Handoff
+
+When a prototype is approved and real backend work begins, run
+`/mock-data-doc`. The skill scans all mock data in the codebase (mocks/,
+fixtures/, MSW handlers, hardcoded arrays, localStorage writes) and writes
+`docs/MOCKED_DATA_STRUCTURE.md` — a complete handoff artifact for the backend
+team covering:
+
+- Every mocked entity with TypeScript shape and example values
+- All simulated operations (list, get, create, update, delete) with suggested
+  real endpoints
+- Relationships and implied constraints (uniqueness, enums, ranges)
+- Prototype-only assumptions the backend must NOT carry forward (no auth,
+  hardcoded admins, in-memory persistence)
+- Handoff checklist for the backend team
+
+### Configuration Files
+
+| File | What it controls |
+|------|-----------------|
+| `CLAUDE.md` | Mode, quality gates, workflow instructions (Claude reads this) |
+| `.claude/settings.json` | Hooks and permissions (Claude Code reads this) |
+| `.claude/skills/` | Per-phase execution logic (loaded on-demand) |
+| `.mcp.json` | MCP server definitions (Claude Code reads this) |
+| `config/workflow.config.yaml` | **Documentation only** — Claude does NOT read YAML |
+
+### Personal Preferences File
+
+`CLAUDE.local.md` is a gitignored file for personal workflow customization:
+
+```bash
+cp CLAUDE.local.md.example CLAUDE.local.md
+# Edit with your preferences — never committed to git
+```
