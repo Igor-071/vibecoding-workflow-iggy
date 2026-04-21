@@ -33,15 +33,32 @@ This will:
 - Enable/disable relevant quality gates
 - Prepare the CI workflow
 
-### 3. Start coding with Claude
+### 3. Scaffold Next.js (if using Next.js)
+
+```bash
+./scripts/add-mop-foundation.sh
+npm install
+npm run dev
+```
+
+This pulls the latest [MOP Next.js foundation](https://github.com/ministryofprogramming/mop-foundation-nextjs)
+into your project. Your workflow files (CLAUDE.md, .claude/, docs/, scripts/)
+are never touched. Re-run any time to pull foundation updates.
+
+> `init-project.sh` will offer this automatically when you select Next.js.
+
+### 4. Start coding with Claude
 
 Open the project in your IDE with Claude Code and start your first feature:
 
 ```
-"Create a spec for [your feature]"
+/spec
 ```
 
-### 4. Upgrade to Production (when ready)
+Type `/spec` to create a specification, `/implement` after it's approved,
+`/review` when done. See the [Slash Commands](#slash-commands-skills) table below.
+
+### 5. Upgrade to Production (when ready)
 
 When your prototype is validated and you're ready for production:
 
@@ -116,8 +133,13 @@ See [METHODOLOGY.md](docs/METHODOLOGY.md) for the philosophy behind this approac
 │   ├── PULL_REQUEST_TEMPLATE.md # PR template with quality gates
 │   └── workflows/               # CI/CD workflows
 │
+├── .claude/
+│   ├── settings.json            # Hooks (auto-lint + pre-commit)
+│   └── skills/                  # Slash commands (spec, test-plan, implement, review, ship, bug, mock-data-doc)
+│
 └── scripts/
     ├── init-project.sh          # Project initialization
+    ├── add-mop-foundation.sh    # Pull latest MOP Next.js foundation
     └── upgrade-to-production.sh # Prototype → Production upgrade
 ```
 
@@ -135,12 +157,20 @@ AI: Presents spec with Given/When/Then criteria
 User: "Spec approved"
 ```
 
-### Phase 2-3: Test Planning & Implementation
+### Phase 2: Test Planning
 
 ```
-AI: Plans tests for each criterion
+User: "Spec approved"
      ↓
-AI: TDD cycle (Red → Green → Blue)
+AI (/test-plan): Produces test matrix per AC — level, file, fixtures, edge cases
+     ↓
+User: approves test plan
+```
+
+### Phase 3: Implementation
+
+```
+AI (/implement): TDD cycle (Red → Green → Blue)
      ↓
 AI: Updates traceability matrix
 ```
@@ -170,6 +200,24 @@ User: "Commit" (when ready)
 ```
 
 ## Key Features
+
+### Slash Commands (Skills)
+
+Everything Claude does is driven by slash commands. Type them in Claude Code:
+
+| Command | Phase | What it does |
+|---------|-------|--------------|
+| `/spec` | 1 — Specification | Creates spec in `docs/specs/` with Given/When/Then ACs |
+| `/test-plan` | 2 — Test Planning | Produces test matrix appended to the spec file |
+| `/implement` | 3 — Implementation | TDD cycle: Red → Green → Blue |
+| `/review` | 4 — Review | Runs all quality gates, reports pass/fail |
+| `/ship` | 5 — Ship | Creates commit + PR with conventional commit message |
+| `/bug` | Any | Root cause analysis (5 Whys) + regression test |
+| `/mock-data-doc` | Handoff | Generates `docs/MOCKED_DATA_STRUCTURE.md` for backend team |
+
+Skills live in `.claude/skills/[name]/SKILL.md`.
+
+---
 
 ### Given/When/Then Acceptance Criteria
 
@@ -208,6 +256,50 @@ AND see welcome message with their name
 
 Authoritative definition: `.claude/skills/review/SKILL.md`.
 
+### MOP Next.js Foundation
+
+New Next.js projects pull the latest starter from
+[`ministryofprogramming/mop-foundation-nextjs`](https://github.com/ministryofprogramming/mop-foundation-nextjs)
+via `degit` — not a copy, always the latest:
+
+```bash
+./scripts/add-mop-foundation.sh         # pull latest main
+./scripts/add-mop-foundation.sh v1.2.0  # pin to a specific release
+```
+
+Your workflow files (CLAUDE.md, .claude/, config/, docs/, scripts/) are
+preserved. Foundation files are overlaid. `.gitignore` is merged. Re-run any
+time to update.
+
+`init-project.sh` offers to scaffold automatically when you select Next.js.
+
+---
+
+### Prototype → Backend Handoff
+
+When a prototype is approved and real backend work begins, run:
+
+```
+/mock-data-doc
+```
+
+or say **"generate mock data doc"** in Claude Code.
+
+Claude scans the entire codebase for mock data — `mocks/`, `fixtures/`, MSW
+handlers, hardcoded arrays, `localStorage` writes — and writes
+`docs/MOCKED_DATA_STRUCTURE.md`. The document covers:
+
+- Every mocked entity with TypeScript shape and real example values
+- All simulated operations (list, get, create, update, delete) with suggested real endpoints
+- Relationships between entities (foreign keys, nested refs)
+- Implied constraints (unique fields, enums, required fields)
+- Prototype-only assumptions the backend must **not** carry forward (hardcoded admins, no auth, no pagination)
+- Handoff checklist for the backend team
+
+Commit the file to `docs/` so the backend team has it alongside the code.
+
+---
+
 ### Bug Post-Mortems with 5 Whys
 
 ```
@@ -242,6 +334,10 @@ quality_gates:
   accessibility:
     enabled: true  # false for CLI/backend
 ```
+
+> **Note:** `workflow.config.yaml` is **documentation only** — Claude does not
+> read YAML. The authoritative configuration is `CLAUDE.md` (mode, quality gates)
+> and `.claude/settings.json` (hooks).
 
 ### Conventional Commits
 
