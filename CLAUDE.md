@@ -35,6 +35,7 @@ This project follows **Spec-Driven Development with BDD-style Acceptance Criteri
 4. **Traceability** - Every spec criterion has a matching test
 5. **Stop & Wait** - Always wait for explicit user approval
 6. **Manual Git** - Never commit or push without user instruction
+7. **Context7** - Add `use context7` when using any framework/library to get current docs
 
 ## Team Personas
 
@@ -86,19 +87,19 @@ You operate as two personas depending on the current phase:
 
 ### PROTOTYPE MODE (5 essential gates)
 
-- [ ] **Code Quality** - Linting passes, no warnings
-- [ ] **Functionality** - All acceptance criteria met
+- [ ] **Tests pass** - `npm run test` — 0 failures
+- [ ] **Lint clean** - `npm run lint` — 0 errors, 0 warnings
+- [ ] **All ACs met** - Every acceptance criterion has a passing test
 - [ ] **Mobile Responsive** - Works at 320px, 375px, 768px, 1024px, 1440px
-- [ ] **UX Consistency** - Matches design system
-- [ ] **Documentation** - Code commented where needed
+- [ ] **Code review** - No dead code, hardcoded values, or boundary errors
 
 ### PRODUCTION MODE (all 10 gates)
 
 All prototype gates PLUS:
 - [ ] **Performance** - Lighthouse > 90, FCP < 1.5s
-- [ ] **Accessibility** - WCAG 2.1 AA, keyboard navigation works
+- [ ] **Accessibility** - WCAG 2.1 AA, axe-core clean, keyboard navigation works
 - [ ] **Browser Testing** - Chrome, Safari, Firefox
-- [ ] **Integration** - APIs working, error handling in place
+- [ ] **Integration** - APIs working, error handling in place, build succeeds
 - [ ] **Security** - No XSS, no injection, secrets in env vars
 
 ## Feature Delivery Format
@@ -144,6 +145,14 @@ THEN [expected result]
 AND [additional expectation if needed]
 ```
 
+## Code Style
+
+- Keep functions small. One purpose per function.
+- Name things clearly. No abbreviations.
+- Handle errors at system boundaries only. Trust internal code.
+- Conventional commits: `feat|fix|docs|spec|test|refactor|chore(scope): description`
+- Commit message = WHY, not WHAT. The diff shows what changed.
+
 ## Bug Handling
 
 When a bug is found:
@@ -169,12 +178,6 @@ When user requests a commit, use Conventional Commits:
 
 Types: `feat`, `fix`, `docs`, `spec`, `test`, `refactor`, `chore`
 
-Examples:
-- `feat(auth): add user login with email/password`
-- `spec(auth): add login feature specification`
-- `test(auth): add login acceptance tests`
-- `fix(auth): prevent account lockout bypass`
-
 ## Documentation Auto-Generation
 
 When user says "approved", "green light", or "looks good":
@@ -182,10 +185,20 @@ When user says "approved", "green light", or "looks good":
 2. Include both technical and user-facing documentation
 3. Mark feature as COMPLETE
 
+## When Stuck
+
+- Check `docs/specs/` for the approved spec
+- Run tests to see what's failing
+- Ask the user — don't guess at requirements
+
 ## Key Files
 
 | File | Purpose |
 |------|---------|
+| `CLAUDE.local.md.example` | Personal preferences template (copy to CLAUDE.local.md) |
+| `.mcp.json` | MCP servers (context7, github, playwright, memory) |
+| `.claude/settings.json` | Hooks and permissions |
+| `.claude/skills/` | Workflow skills (spec, implement, review, ship, bug) |
 | `config/workflow.config.yaml` | Project-specific workflow settings |
 | `config/personas.yaml` | AI persona definitions |
 | `docs/METHODOLOGY.md` | Core philosophy and principles |
@@ -193,7 +206,7 @@ When user says "approved", "green light", or "looks good":
 | `docs/QUICK_REFERENCE.md` | Daily cheat sheet |
 | `docs/SPEC_TEMPLATE.md` | Feature specification template |
 
-## Commands (Customize for your stack)
+## Commands
 
 ```bash
 # Development
@@ -222,3 +235,4 @@ npm run build            # Production build
 6. **ALWAYS** write failing tests before implementation
 7. **ALWAYS** update traceability matrix
 8. **ALWAYS** generate documentation on feature approval
+9. **ALWAYS** use `use context7` when working with any framework or library
