@@ -5,7 +5,7 @@
 # =============================================================================
 #
 # Pulls the latest MOP Next.js foundation from
-# https://github.com/ministryofprogramming/mop-foundation-nextjs
+# git@github.com:ministryofprogramming/mop-foundation-nextjs (private repo, SSH required)
 # and overlays it on the current project WITHOUT clobbering the vibecoding
 # workflow files (CLAUDE.md, .claude/, config/, docs/, scripts/, etc.).
 #
@@ -26,7 +26,7 @@ RED='\033[0;31m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-REPO="ministryofprogramming/mop-foundation-nextjs"
+REPO="git@github.com:ministryofprogramming/mop-foundation-nextjs"
 REF="${1:-}"  # optional tag/branch/commit; empty = default branch
 DEGIT_TARGET="$REPO"
 [ -n "$REF" ] && DEGIT_TARGET="$REPO#$REF"
@@ -49,6 +49,30 @@ fi
 
 if ! command -v rsync >/dev/null 2>&1; then
     echo -e "${RED}Error: rsync not found.${NC}"
+    exit 1
+fi
+
+# Check SSH access to GitHub (required — repo is private)
+if ! ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
+    echo -e "${RED}Error: SSH access to GitHub is not configured.${NC}"
+    echo ""
+    echo -e "${YELLOW}To set up SSH for GitHub:${NC}"
+    echo "  1. Generate a key (skip if you already have one):"
+    echo "       ssh-keygen -t ed25519 -C \"your@email.com\""
+    echo ""
+    echo "  2. Add the key to your SSH agent:"
+    echo "       eval \"\$(ssh-agent -s)\""
+    echo "       ssh-add ~/.ssh/id_ed25519"
+    echo ""
+    echo "  3. Copy your public key:"
+    echo "       cat ~/.ssh/id_ed25519.pub"
+    echo "     Then go to https://github.com/settings/ssh/new and paste it."
+    echo ""
+    echo "  4. Verify the connection:"
+    echo "       ssh -T git@github.com"
+    echo "     You should see: Hi <username>! You've successfully authenticated..."
+    echo ""
+    echo "  5. Re-run this script."
     exit 1
 fi
 
@@ -86,7 +110,7 @@ TMP_DIR=$(mktemp -d)
 trap "rm -rf '$TMP_DIR'" EXIT
 
 echo -e "${YELLOW}Fetching foundation into temporary directory...${NC}"
-npx --yes degit "$DEGIT_TARGET" "$TMP_DIR" --force
+npx --yes degit "$DEGIT_TARGET" "$TMP_DIR" --mode=git --force
 
 if [ ! -d "$TMP_DIR" ] || [ -z "$(ls -A "$TMP_DIR")" ]; then
     echo -e "${RED}Error: degit produced an empty directory.${NC}"
